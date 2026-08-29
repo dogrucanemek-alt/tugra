@@ -1,0 +1,54 @@
+{
+  "name": "tugra",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "description": "Provenance-aware memory format for AI agents: every claim carries its source, age and boundary.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dogrucanemek-alt/tugra.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dogrucanemek-alt/tugra/issues"
+  },
+  "homepage": "https://tugra-ai.com",
+  "keywords": [
+    "mcp",
+    "agent-memory",
+    "provenance",
+    "freshness",
+    "audit"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "tugra": "dist-paket/mcp.js"
+  },
+  "files": [
+    "dist-paket/**/*.js",
+    "dist-paket/**/*.d.ts",
+    "LICENSE",
+    "NOTICE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && npm run build:paket",
+    "build:paket": "node -e \"require('fs').rmSync('dist-paket',{recursive:true,force:true})\" && tsc -p tsconfig.paket.json",
+    "prepack": "npm run build:paket",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "mcp": "npm run build && node dist/mcp.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.0.0",
+    "yaml": "^2.8.0",
+    "zod": "^4.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.30",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

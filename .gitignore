@@ -1,0 +1,14 @@
+node_modules/
+dist/
+dist-paket/
+*.tgz
+tugra-pack-n-meta.json
+tugra-pack-rpc-meta.json
+*.log
+.DS_Store
+# local-only: operator findings stay on the machine
+nobetci/
+yukseltme/
+# internal project names — never published
+tests/fixtures/ic-adlar.txt
+.test-sonuc.json

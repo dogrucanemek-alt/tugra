@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist-paket",
+    "rootDir": "src",
+    "declaration": true,
+    "sourceMap": false,
+    "removeComments": true,
+    "types": ["node"]
+  },
+  "include": ["src/mcp.ts", "src/kurulum.ts"],
+  "exclude": ["node_modules", "dist", "dist-paket", "tests"]
+}

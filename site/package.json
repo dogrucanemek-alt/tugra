@@ -1,0 +1,9 @@
+{
+  "name": "tugra-site",
+  "private": true,
+  "description": "Static tugra-ai.com page. No deploy from this package.",
+  "scripts": {
+    "build": "node -e \"console.log('static — nothing to compile')\"",
+    "preview": "npx --yes serve -l 4173 ."
+  }
+}

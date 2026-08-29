@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tugra — proven memory for agents</title>
+  <meta name="description" content="An agent's memory should be proven: source, age, boundary.">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="mast">
+    <p class="mark">Tugra</p>
+    <button type="button" class="theme" id="theme" aria-label="Toggle color scheme">ink / paper</button>
+  </header>
+
+  <main>
+    <section id="thesis">
+      <p class="lede">An agent's memory should be proven: where it came from, when it was last verified, and which topics it must not invent.</p>
+    </section>
+
+    <section id="install">
+      <p class="kicker">Install</p>
+      <div class="cmd" role="group" aria-label="Install command">
+        <code id="cmd">npx tugra init</code>
+        <button type="button" id="copy">Copy</button>
+      </div>
+      <p class="hint">Paste the printed config into Claude Desktop, Cursor, or Claude Code. TTY prints help. A pipe is the MCP server.</p>
+    </section>
+
+    <section id="compare">
+      <p class="kicker">Measured here — not a competitor audit</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Tugra (this repo, 2026-08-29)</th>
+              <th>A chat log or loose markdown</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Boundary type</th>
+              <td><code>type: boundary</code> — always quarantined until a human approves</td>
+              <td>No first-class “do not invent” type in this vault</td>
+            </tr>
+            <tr>
+              <th scope="row">Required confidence</th>
+              <td><code>confidence</code> 0–1 on every fact; write path rejects out of range</td>
+              <td>Optional or absent</td>
+            </tr>
+            <tr>
+              <th scope="row">Automatic staleness</th>
+              <td><code>verified</code> + <code>shelf_life</code>; stale ranks behind fresh</td>
+              <td>Age is not a first-class field</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="src">Source: <code>kasa-motoru/src/sema.ts</code>, <code>arama.ts</code>, <code>tarayici.ts</code>. No claim about another product's schema.</p>
+    </section>
+
+    <section id="links">
+      <p class="kicker">Spec and code</p>
+      <ul class="links">
+        <li><a href="https://github.com/dogrucanemek-alt/tugra">GitHub — dogrucanemek-alt/tugra</a> <span class="draft-note">(repo not public yet)</span></li>
+        <li><a href="https://github.com/dogrucanemek-alt/tugra#readme">Format + install README</a></li>
+      </ul>
+    </section>
+    <section id="pricing">
+      <p class="kicker">Pricing</p>
+      <p>The core is Apache-2.0 and free, and it stays free.</p>
+      <p>Paid work is hands on. We set up a vault with you and define the
+        boundaries your agents must not cross, so you end up with a record you
+        can show someone else. Ask for a quote:
+        <a href="mailto:e.dogru@tugra-ai.com">e.dogru@tugra-ai.com</a>.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p class="foot-line">TUGRA · Proven memory for AI agents · © 2026 ·
+      Local-first. Sourced. Auditable.</p>
+    <p class="foot-links">
+      <a href="https://github.com/dogrucanemek-alt/tugra">GitHub</a> ·
+      <a href="mailto:e.dogru@tugra-ai.com">Contact</a>
+    </p>
+    <p class="domain">a Verax Teknoloji product · tugra-ai.com</p>
+  </footer>
+
+  <script src="./app.js"></script>
+</body>
+</html>

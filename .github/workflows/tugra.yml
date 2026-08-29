@@ -1,0 +1,62 @@
+name: tugra
+
+on:
+  push:
+    paths:
+      - "**"
+      - ".github/workflows/tugra.yml"
+  pull_request:
+    paths:
+      - "**"
+      - ".github/workflows/tugra.yml"
+
+jobs:
+  suite:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["20", "22"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: install
+        run: npm ci
+      - name: build
+        run: npm run build
+      - name: typecheck
+        run: npx tsc --noEmit
+      - name: test
+        run: npx vitest run
+
+  paket:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["20", "22"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: install
+        run: npm ci
+      - name: pack
+        run: |
+          npm pack
+          ls -l tugra-*.tgz
+      - name: temiz kurulum
+        run: |
+          mkdir -p /tmp/yabanci
+          cd /tmp/yabanci
+          npm init -y >/dev/null
+          npm install --omit=dev "$GITHUB_WORKSPACE"/tugra-*.tgz
+      - name: duman testi
+        run: node scripts/paket-duman.mjs /tmp/yabanci
