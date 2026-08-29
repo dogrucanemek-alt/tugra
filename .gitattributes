@@ -1,0 +1,11 @@
+# Normalize line endings so a Windows checkout does not show phantom diffs.
+# Without this, regenerating the published tree reports every file as changed
+# while the content is byte-identical (measured 2026-08-30: 42 files "changed",
+# 0 with a real difference).
+* text=auto eol=lf
+
+# Binary-ish assets git should never touch
+*.png binary
+*.jpg binary
+*.pdf binary
+*.tgz binary
