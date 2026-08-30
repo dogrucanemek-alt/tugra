@@ -124,11 +124,25 @@ TUGRA_AKIS = "/absolute/path/to/events"
 
 Windows: use a full path (`C:\\Users\\…\\vault`). Node 20 or newer.
 
-More client notes: [docs/install.md](docs/install.md).
+More client notes: [docs/install.md](https://github.com/dogrucanemek-alt/tugra/blob/main/docs/install.md).
 
 ## Shared-vault authorization (optional)
 
-Single-user setups do **not** need this. Add `TUGRA_YETKI` only when several agents share one vault and each needs its own profile (`mcp-readonly@tugra` and others as JSON files in that directory). Setting the variable, even to an empty path, turns single-user mode off: a missing profile then returns unauthorized. That is intentional.
+Single-user setups do **not** need this. Add `TUGRA_YETKI` only when several agents share one vault and each needs its own profile (`mcp-readonly@tugra` and others as JSON files in that directory). A missing profile then returns unauthorized. An empty `TUGRA_YETKI` is treated as unset — single-user mode stays on.
+
+## Host library surface (not the MCP wire)
+
+The MCP tools (`fact_search`, `fact_read`, `fact_propose`, `event_report`) enforce authorization on every call. The published package also ships `dist-paket/akis.js` and `dist-paket/yetki.js` so a **host application** (cron, mirror, cockpit) can write telemetry without going through JSON-RPC.
+
+Those modules are public on purpose. `akisBildir({ atlaYetki: true })`, `eylem: "yetki_talebi"`, and `dosyaYoksaIzin` (default true) skip or relax the check. `harcamaEkle` mutates a profile. The host that imports them owns authorization. The MCP wire cannot set these flags — the tool schema does not accept them.
+
+### Scale vault vs target vault
+
+A0–A5 levels are facts (`yonetisim.yetki.a0` … `a5`) in a vault. The stdio server reads them from `TUGRA_KASA`, or from the cockpit `kasa/` when that variable is unset.
+
+`tugraArac` / `createTugraMcp` take an optional `kasaKok` (the write/search **target**). Scale does **not** follow that target. It defaults to `varsayilanKasa()` — the same central vault the stdio server uses. A host that points `kasaKok` at a data-only tree keeps using the cockpit / `TUGRA_KASA` scale. To read scale from a different tree, pass `skalaKasa` explicitly.
+
+All four tools share one resolver. This is the contract: separate target + central governance stays reachable. YAYIN/12 briefly defaulted scale to `kasaKok`; that broke the split-root host. YAYIN/13 restores the central default.
 
 ## What we do not guarantee
 

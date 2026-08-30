@@ -138,7 +138,7 @@ export function varsayilanRafOmru(
 export function parseRafOmru(raw: string): RafOmru {
   if (raw === "suresiz") return { tur: "suresiz" };
   const m = /^(\d+)g$/.exec(raw.trim());
-  if (!m) throw new Error(`Geçersiz raf_omru: ${raw}`);
+  if (!m) throw new Error(`Invalid shelf_life: ${raw}`);
   return { tur: "gun", gun: Number(m[1]) };
 }
 
@@ -184,6 +184,6 @@ export function kapsamYolu(
 ): string {
   if (kapsam === "evrensel") return `evrensel/${slug}.md`;
   if (kapsam === "kurum") return `kurum/${slug}.md`;
-  if (!dunya) throw new Error("kapsam=dunya iken dunya zorunlu");
+  if (!dunya) throw new Error("scope=world requires world");
   return `dunya/${dunya}/${slug}.md`;
 }

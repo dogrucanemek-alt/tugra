@@ -24,7 +24,7 @@ export function olguDosyaMetni(olgu: Olgu): string {
 
 export function parseOlguDosya(metin: string, yol?: string): Olgu {
   const m = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(metin);
-  if (!m) throw new Error(`Frontmatter yok: ${yol ?? "?"}`);
+  if (!m) throw new Error(`No frontmatter: ${yol ?? "?"}`);
   // Göç dönemi: frontmatter İngilizce de olabilir, Türkçe de. Sözlük
   // içeriye alınır; başlık/gövde ASLA çevrilmez. bkz. vocabulary.ts
   const meta = frontmatterIceAl(YAML.parse(m[1])) as OlguMeta;

@@ -27,6 +27,13 @@ function izinli(rel: string, eslesen: string, satır: string): string | null {
     return "telif satırı";
   }
   if (
+    /(^|\/)package\.json$/i.test(ad) &&
+    /verax/i.test(eslesen) &&
+    /"author"/.test(satır)
+  ) {
+    return "telif satırı";
+  }
+  if (
     /(^|\/)(src\/sir\.ts|dist-paket\/sir\.js|sir\.js)$/.test(ad) &&
     /sk-ant-|ghp_|AKIA|PRIVATE KEY/.test(eslesen)
   ) {

@@ -11,7 +11,6 @@ import { serveStdio } from "@modelcontextprotocol/server/stdio";
 import { z } from "zod";
 import { akisBildir, type Eylem, type AkisDurum } from "./akis.js";
 import { olguAra, olguOkuMcp, olguOner, type OlguOnerKaynak } from "./arama.js";
-import { indeksGerekirseTazele } from "./indeks.js";
 import { presentation, toWire } from "./outbound.js";
 import type { KaynakTur, Tur } from "./sema.js";
 import { MCP_OKUMA_AJAN, yetkiKontrol } from "./yetki.js";
@@ -68,8 +67,32 @@ export interface TugraMcpSecenek {
   kasaKok?: string;
   akisKok?: string;
   yetkiKok?: string;
-  /** A0–A5 scale vault, when the write/search target is a temp tree */
+  /**
+   * A0–A5 scale vault. Defaults to `varsayilanKasa()` (TUGRA_KASA / cockpit),
+   * not to `kasaKok`. Pass this when the target vault has no scale facts.
+   */
   skalaKasa?: string;
+}
+
+/**
+ * Dört aracın aynı kökleri görmesi.
+ * Skala varsayılanı merkezi kasa (`varsayilanKasa` / TUGRA_KASA / kokpit),
+ * programatik `kasaKok` değil — ayrı hedef + merkezi yönetişim kurulumu
+ * sessizce erişim kaybetmesin. Hedef kasadan skala okumak için `skalaKasa` ver.
+ */
+export function kokCoz(secenek: TugraMcpSecenek = {}): {
+  kasaKok: string;
+  akisKok: string;
+  yetkiKok: string | undefined;
+  skalaKasa: string;
+} {
+  const kasaKok = secenek.kasaKok ?? varsayilanKasa();
+  return {
+    kasaKok,
+    akisKok: secenek.akisKok ?? varsayilanAkis(),
+    yetkiKok: secenek.yetkiKok,
+    skalaKasa: secenek.skalaKasa ?? varsayilanKasa(),
+  };
 }
 
 /**
@@ -135,13 +158,10 @@ export async function tugraArac(
   args: Record<string, unknown>,
   secenek: TugraMcpSecenek = {},
 ): Promise<{ content: { type: "text"; text: string }[] }> {
-  const kasaKok = secenek.kasaKok ?? varsayilanKasa();
-  const akisKok = secenek.akisKok ?? varsayilanAkis();
-  const yetkiKok = secenek.yetkiKok;
+  const { kasaKok, akisKok, yetkiKok, skalaKasa } = kokCoz(secenek);
 
   if (ad === "fact_search") {
     const query = String(args.query ?? "");
-    const tz = indeksGerekirseTazele(kasaKok);
     const r = olguAra(query, {
       kasaKok,
       kapsam: typeof args.scope === "string" ? args.scope : undefined,
@@ -151,14 +171,15 @@ export async function tugraArac(
       ajan: String(args.agent ?? "").trim() || MCP_OKUMA_AJAN,
       yetkiKok,
       akisKok,
-      skalaKasa: secenek.skalaKasa,
+      skalaKasa,
     });
     // İngilizce sunum: guvenliSunum Türkçe kalır (CLI + kokpit onu kullanır),
     // MCP kendi yüzeyini üretir. Dış kaynak alıntı kuralı ikisinde de aynı.
     const sunum = r.sonuclar.map((s) => presentation(s)).join("\n\n---\n\n");
+    const { indeksTazelendi, ...govde } = r;
     return jsonCevap({
-      ...(tz.tazelendi ? { indeks_tazelendi: tz.olgu } : {}),
-      ...r,
+      ...(indeksTazelendi != null ? { indeks_tazelendi: indeksTazelendi } : {}),
+      ...govde,
       sinirUyarilari: r.sinirUyarilari.map(uyariIngilizce),
       sunum,
     });
@@ -171,7 +192,7 @@ export async function tugraArac(
       ajan: kim,
       eylem: "okuma",
       kapsam: "kurum",
-      kasaKok: secenek.skalaKasa ?? kasaKok,
+      kasaKok: skalaKasa,
       akisKok,
       yetkiKok,
       dosyaYoksaIzin: false,
@@ -194,7 +215,7 @@ export async function tugraArac(
       return jsonCevap({
         ok: false,
         izin: false,
-        talep_id: "yok",
+        talep_id: "none",
         neden: "invalid type",
       });
     }
@@ -214,7 +235,7 @@ export async function tugraArac(
       return jsonCevap({
         ok: false,
         izin: false,
-        talep_id: "yok",
+        talep_id: "none",
         neden: e instanceof Error ? e.message : "invalid source",
       });
     }
@@ -229,7 +250,7 @@ export async function tugraArac(
         kaynak,
       },
       kasaKok,
-      { yetkiKok, akisKok, skalaKasa: secenek.skalaKasa },
+      { yetkiKok, akisKok, skalaKasa },
     );
     if (!r.izin) {
       return jsonCevap({
@@ -267,6 +288,11 @@ export async function tugraArac(
         : undefined,
     },
     akisKok,
+    {
+      dosyaYoksaIzin: false,
+      yetkiKok,
+      kasaKok: skalaKasa,
+    },
   );
   return jsonCevap(r.izin ? { ok: true, ...r } : { ok: false, ...r });
 }
@@ -368,8 +394,8 @@ export function createTugraMcp(secenek: TugraMcpSecenek = {}): McpServer {
       description:
         "Append a telemetry line to akis/YYYY-MM-DD.jsonl. No network.",
       inputSchema: z.object({
-        agent: z.string(),
-        job: z.string(),
+        agent: z.string().min(1),
+        job: z.string().min(1),
         action: z.enum(["read", "write", "search", "run", "decide", "wait"]),
         status: z.enum(["started", "running", "done", "error"]),
         world: z.string().optional(),

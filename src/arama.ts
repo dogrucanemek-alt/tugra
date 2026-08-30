@@ -108,6 +108,8 @@ export interface AramaCevap {
   toplam: number;
   /** Yanıt düzeyi — boş sorgu notu. Sonuç notları `AramaSonuc.notlar`. */
   notlar?: string[];
+  /** Yetki geçtikten sonra indeks yenilendiyse olgu sayısı. */
+  indeksTazelendi?: number;
 }
 
 /**
@@ -140,16 +142,7 @@ function sinirGovdeKelime(govdeKatli: string, t: string): boolean {
 }
 
 function semaNotIngilizce(u: string): string {
-  const en = u
-    .replace(/0–1 dışı/g, "out of 0-1")
-    .replace(/geçersiz/g, "invalid")
-    .replace(/dizi zorunlu/g, "array required")
-    .replace(/zorunlu/g, "required")
-    .replace(/nesne olmalı/g, "must be an object")
-    .replace(/YYYY-MM-DD veya null/g, "YYYY-MM-DD or null")
-    .replace(/ISO\/YYYY-MM-DD beklenir/g, "ISO/YYYY-MM-DD expected")
-    .replace(/YYYY-MM-DD beklenir/g, "YYYY-MM-DD expected");
-  return `schema: ${en}`;
+  return `schema: ${u}`;
 }
 
 function skor(satir: IndeksSatir, toks: string[]): number {
@@ -213,11 +206,13 @@ export function olguAra(
     if (!k.izin) {
       return {
         sonuclar: [],
-        sinirUyarilari: [`yetki yok: ${k.neden} (talep ${k.talep_id})`],
+        sinirUyarilari: [`yetki yok: ${k.neden} (request ${k.talep_id})`],
         toplam: 0,
       };
     }
   }
+  const tz = indeksGerekirseTazele(kasaKok);
+  const tazele = tz.tazelendi ? { indeksTazelendi: tz.olgu } : {};
   const limit = opts.limit ?? 10;
   const toks = tokenler(sorgu);
   const indeks = indeksYukle(kasaKok);
@@ -231,6 +226,7 @@ export function olguAra(
       sinirUyarilari: [],
       toplam: 0,
       notlar: ["empty query — not a search; no results invented"],
+      ...tazele,
     };
   }
 
@@ -356,7 +352,7 @@ export function olguAra(
     };
   });
 
-  return { sonuclar, sinirUyarilari, toplam: puanliHepsi.length };
+  return { sonuclar, sinirUyarilari, toplam: puanliHepsi.length, ...tazele };
 }
 
 export function olguOku(
@@ -454,7 +450,7 @@ export function olguOner(
   const ajan = taslak.ajan ?? "mcp@olgu_oner";
   const turHam = taslak.tur ?? "olgu";
   if (!TURLER.includes(turHam as Tur)) {
-    return { izin: false, talep_id: "yok", neden: "geçersiz tur" };
+    return { izin: false, talep_id: "none", neden: "geçersiz tur" };
   }
   if (
     taslak.kaynak?.some(
@@ -462,7 +458,7 @@ export function olguOner(
         !KAYNAK_TURLERI.includes(k.tur as (typeof KAYNAK_TURLERI)[number]),
     )
   ) {
-    return { izin: false, talep_id: "yok", neden: "geçersiz kaynak.tur" };
+    return { izin: false, talep_id: "none", neden: "geçersiz kaynak.tur" };
   }
   const tur = turHam as Tur;
   const dunya = taslak.dunya ?? null;
@@ -479,7 +475,7 @@ export function olguOner(
   if (sirAd) {
     return {
       izin: false,
-      talep_id: "yok",
+      talep_id: "none",
       neden: `sır deseni: yazılmadı (${sirAd})`,
     };
   }
@@ -496,7 +492,7 @@ export function olguOner(
   if (!k.izin) {
     return {
       izin: false,
-      talep_id: k.talep_id ?? "yok",
+      talep_id: k.talep_id ?? "none",
       neden: k.neden ?? "yetki yok",
     };
   }

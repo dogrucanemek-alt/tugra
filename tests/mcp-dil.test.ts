@@ -23,6 +23,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { tugraArac } from "../src/mcp.js";
+import { kullaniciAlanlariniSoy, sozlukIcAdlar } from "../src/vocabulary.js";
 
 const TMPLER: string[] = [];
 const ORTAM = [
@@ -59,7 +60,7 @@ afterEach(() => {
 
 /** Türkçe'ye özgü harfler + ürünün bilinen Türkçe kelimeleri. */
 const TURKCE =
-  /[çğşıöüÇĞŞİÖÜ]|\b(taze|bayat|curuk|emekli|olgu|kasa|yetki|sinir|kanitsiz|gozlem|kural|karar|neden|notlar|konu|guven|tazelik|kaynak|yasak|gundur|yerine|bulunamadi|taslagi|oneri)\b/i;
+  /[çğşıöüÇĞŞİÖÜ]|\b(taze|bayat|curuk|emekli|olgu|kasa|yetki|sinir|kanitsiz|gozlem|kural|karar|neden|notlar|konu|guven|tazelik|kaynak|yasak|gundur|yerine|bulunamadi|taslagi|oneri|yok|talep|zorunlu|eksik|gecersiz|hata|yazilmadi|izin|olmali|akis_bildir)\b/i;
 
 /** Kullanıcının kendi içeriği İngilizce — dönen Türkçe SADECE üründen gelebilir. */
 function yabanciKasa(): { kasa: string; akis: string } {
@@ -142,6 +143,19 @@ function turkceSatirlar(metin: string): string[] {
     .filter((s) => s && TURKCE.test(s));
 }
 
+/** YAYIN/12 F1 + YAYIN/13 C: sözlük taraması kullanıcı içeriğini sıyırır. */
+function sozlukSizdi(metin: string): string[] {
+  let taranacak = metin;
+  try {
+    taranacak = JSON.stringify(kullaniciAlanlariniSoy(JSON.parse(metin)));
+  } catch {
+    /* ham metin */
+  }
+  return sozlukIcAdlar().filter((ad) =>
+    new RegExp(`(^|[^\\w-])${ad}([^\\w-]|$)`).test(taranacak),
+  );
+}
+
 describe("MCP yüzeyi İngilizce konuşur", () => {
   const senaryolar: { ad: string; arac: "fact_search" | "fact_read"; args: Record<string, unknown> }[] = [
     { ad: "taze olgu", arac: "fact_search", args: { query: "shipping" } },
@@ -163,6 +177,8 @@ describe("MCP yüzeyi İngilizce konuşur", () => {
       const metin = await cagir(s.arac, s.args, kasa, akis);
       const kirli = turkceSatirlar(metin);
       expect(kirli, `Türkçe sızdı:\n${kirli.join("\n")}`).toEqual([]);
+      const sozluk = sozlukSizdi(metin);
+      expect(sozluk, `sözlük iç adı sızdı:\n${sozluk.join("\n")}\n${metin}`).toEqual([]);
     });
   }
 
@@ -183,5 +199,90 @@ describe("MCP yüzeyi İngilizce konuşur", () => {
     );
     const kirli = turkceSatirlar(metin);
     expect(kirli, `Türkçe sızdı:\n${kirli.join("\n")}`).toEqual([]);
+  });
+
+  it("event_report boş agent — Türkçe 0", async () => {
+    const { kasa, akis } = yabanciKasa();
+    let metin: string;
+    try {
+      metin = await cagir(
+        "event_report",
+        { agent: "", job: "dil", action: "read", status: "done" },
+        kasa,
+        akis,
+      );
+    } catch (e) {
+      metin = e instanceof Error ? e.message : String(e);
+    }
+    expect(turkceSatirlar(metin), metin).toEqual([]);
+  });
+
+  it("event_report boş job — Türkçe 0", async () => {
+    const { kasa, akis } = yabanciKasa();
+    let metin: string;
+    try {
+      metin = await cagir(
+        "event_report",
+        { agent: "ci@example", job: "", action: "read", status: "done" },
+        kasa,
+        akis,
+      );
+    } catch (e) {
+      metin = e instanceof Error ? e.message : String(e);
+    }
+    expect(turkceSatirlar(metin), metin).toEqual([]);
+  });
+
+  it("frontmatter'sız dosya — fact_search İngilizce", async () => {
+    const { kasa, akis } = yabanciKasa();
+    writeFileSync(join(kasa, "notes.md"), "plain note\n", "utf8");
+    let metin: string;
+    try {
+      metin = await cagir("fact_search", { query: "note" }, kasa, akis);
+    } catch (e) {
+      metin = e instanceof Error ? e.message : String(e);
+    }
+    expect(turkceSatirlar(metin), metin).toEqual([]);
+    expect(metin).toMatch(/frontmatter/i);
+  });
+
+  it("frontmatter'sız dosya — fact_read İngilizce", async () => {
+    const { kasa, akis } = yabanciKasa();
+    writeFileSync(join(kasa, "notes.md"), "plain note\n", "utf8");
+    let metin: string;
+    try {
+      metin = await cagir(
+        "fact_read",
+        { uid: "01DILTAZE00000000000000000", agent: "mcp-readonly@multi" },
+        kasa,
+        akis,
+      );
+    } catch (e) {
+      metin = e instanceof Error ? e.message : String(e);
+    }
+    expect(turkceSatirlar(metin), metin).toEqual([]);
+  });
+
+  it("bozuk yetki profili + fact_search — Türkçe 0", async () => {
+    const { kasa, akis } = yabanciKasa();
+    const yetki = mkdtempSync(join(tmpdir(), "dil-yetki-"));
+    TMPLER.push(yetki);
+    writeFileSync(
+      join(yetki, "bozuk@box.json"),
+      JSON.stringify({
+        ajan: "",
+        seviye: "A9",
+        baslangic: "not-iso",
+        sona_erme: "suresiz",
+      }),
+      "utf8",
+    );
+    const c = await tugraArac(
+      "fact_search",
+      { query: "shipping", agent: "bozuk@box" },
+      { kasaKok: kasa, akisKok: akis, yetkiKok: yetki },
+    );
+    const t = c.content[0]!.text;
+    expect(turkceSatirlar(t), t).toEqual([]);
   });
 });

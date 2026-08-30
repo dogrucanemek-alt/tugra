@@ -1,0 +1,48 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      # Trusted publishing (OIDC) npm 11.5.1+ ister; setup-node'un getirdigi
+      # surum daha eski olabilir. Guncellemezsek yayin sessizce token arar.
+      - name: npm surumu
+        run: |
+          npm install -g npm@latest
+          npm --version
+
+      - name: install
+        run: npm ci
+      - name: build
+        run: npm run build
+      - name: typecheck
+        run: npx tsc --noEmit
+      - name: test
+        run: npx vitest run
+
+      # Etiket ile package.json ayrisirsa yanlis surum yayinlanir; once dur.
+      - name: etiket == package.json
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG=$(node -p "require('./package.json').version")
+          echo "etiket=$TAG package.json=$PKG"
+          test "$TAG" = "$PKG"
+
+      - name: publish
+        run: npm publish --provenance --access public

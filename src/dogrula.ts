@@ -44,20 +44,20 @@ export interface DogrulaSonuc {
 
 function kayitKaynak(k: unknown, i: number, hatalar: DogrulaHata[]): void {
   if (!k || typeof k !== "object") {
-    hatalar.push({ alan: `kaynak[${i}]`, mesaj: "nesne olmalı" });
+    hatalar.push({ alan: `kaynak[${i}]`, mesaj: "must be an object" });
     return;
   }
   const r = k as Kaynak;
   if (!KAYNAK_TURLERI.includes(r.tur as (typeof KAYNAK_TURLERI)[number])) {
-    hatalar.push({ alan: `kaynak[${i}].tur`, mesaj: `geçersiz: ${r.tur}` });
+    hatalar.push({ alan: `kaynak[${i}].tur`, mesaj: `invalid: ${r.tur}` });
   }
   if (!r.isaret || typeof r.isaret !== "string") {
-    hatalar.push({ alan: `kaynak[${i}].isaret`, mesaj: "zorunlu" });
+    hatalar.push({ alan: `kaynak[${i}].isaret`, mesaj: "required" });
   }
   if (!r.alindi || !/^\d{4}-\d{2}-\d{2}/.test(r.alindi)) {
     hatalar.push({
       alan: `kaynak[${i}].alindi`,
-      mesaj: "YYYY-MM-DD beklenir",
+      mesaj: "YYYY-MM-DD expected",
     });
   }
 }
@@ -77,45 +77,45 @@ export function dogrulaMeta(
   if ("durum" in meta && meta.durum !== undefined) {
     hatalar.push({
       alan: "durum",
-      mesaj: "K3: durum yazılmaz, türetilir",
+      mesaj: "K3: durum is derived, do not write it",
     });
   }
 
   if (!meta.uid || typeof meta.uid !== "string" || !isUlid(meta.uid)) {
-    hatalar.push({ alan: "uid", mesaj: "geçerli ULID zorunlu" });
+    hatalar.push({ alan: "uid", mesaj: "valid ULID required" });
   }
 
   if (!meta.tur || !TURLER.includes(meta.tur as Tur)) {
-    hatalar.push({ alan: "tur", mesaj: `geçersiz: ${meta.tur}` });
+    hatalar.push({ alan: "tur", mesaj: `invalid: ${meta.tur}` });
   }
 
   if (!meta.kapsam || !KAPSAMLAR.includes(meta.kapsam as (typeof KAPSAMLAR)[number])) {
-    hatalar.push({ alan: "kapsam", mesaj: `geçersiz: ${meta.kapsam}` });
+    hatalar.push({ alan: "kapsam", mesaj: `invalid: ${meta.kapsam}` });
   }
 
   if (meta.kapsam === "dunya") {
     if (!meta.dunya || typeof meta.dunya !== "string") {
-      hatalar.push({ alan: "dunya", mesaj: "kapsam=dunya iken zorunlu" });
+      hatalar.push({ alan: "dunya", mesaj: "required when kapsam=dunya" });
     }
   } else if (meta.dunya != null) {
     hatalar.push({
       alan: "dunya",
-      mesaj: "kapsam≠dunya iken null olmalı",
+      mesaj: "must be null when kapsam is not dunya",
     });
   }
 
   for (const alan of ["konu", "baslik", "sahip", "yazan"] as const) {
     if (!meta[alan] || typeof meta[alan] !== "string") {
-      hatalar.push({ alan, mesaj: "zorunlu string" });
+      hatalar.push({ alan, mesaj: "required string" });
     }
   }
 
   if (typeof meta.guven !== "number" || meta.guven < 0 || meta.guven > 1) {
-    hatalar.push({ alan: "guven", mesaj: "0–1 arası sayı" });
+    hatalar.push({ alan: "guven", mesaj: "number in 0-1" });
   }
 
   if (!meta.raf_omru || typeof meta.raf_omru !== "string") {
-    hatalar.push({ alan: "raf_omru", mesaj: "zorunlu" });
+    hatalar.push({ alan: "raf_omru", mesaj: "required" });
   } else {
     try {
       parseRafOmru(meta.raf_omru);
@@ -128,19 +128,19 @@ export function dogrulaMeta(
   }
 
   if (!meta.tarih || typeof meta.tarih !== "string") {
-    hatalar.push({ alan: "tarih", mesaj: "ISO 8601 zorunlu" });
+    hatalar.push({ alan: "tarih", mesaj: "ISO 8601 required" });
   }
   // Gate #2: null bilinmiyor=bayat — geçerli; aksi YYYY-MM-DD
   if (
     meta.dogrulandi != null &&
     !/^\d{4}-\d{2}-\d{2}/.test(String(meta.dogrulandi))
   ) {
-    hatalar.push({ alan: "dogrulandi", mesaj: "YYYY-MM-DD veya null" });
+    hatalar.push({ alan: "dogrulandi", mesaj: "YYYY-MM-DD or null" });
   }
 
   const kaynak = Array.isArray(meta.kaynak) ? meta.kaynak : null;
   if (!kaynak) {
-    hatalar.push({ alan: "kaynak", mesaj: "dizi zorunlu" });
+    hatalar.push({ alan: "kaynak", mesaj: "array required" });
   } else {
     kaynak.forEach((k, i) => kayitKaynak(k, i, hatalar));
     // K1 — Gate #2: kendi kanıt; hafıza:// yalnız kural
@@ -152,7 +152,7 @@ export function dogrulaMeta(
       hatalar.push({
         alan: "kaynak",
         mesaj:
-          "K1: olgu/karar/sinir için kendi (non-miras, non-hafıza://) kanıt gerekir; kural için non-miras veya hafıza://",
+          "K1: olgu/karar/sinir require own (non-miras, non-hafiza://) evidence; kural allows non-miras or hafiza://",
       });
       dusurulmusTur = "gozlem";
     }
@@ -160,12 +160,12 @@ export function dogrulaMeta(
 
   if (meta.yerine != null && meta.yerine !== null) {
     if (typeof meta.yerine !== "string" || !isUlid(meta.yerine)) {
-      hatalar.push({ alan: "yerine", mesaj: "ULID veya null" });
+      hatalar.push({ alan: "yerine", mesaj: "ULID or null" });
     }
   }
   if (meta.curuten != null && meta.curuten !== null) {
     if (typeof meta.curuten !== "string" || !isUlid(meta.curuten)) {
-      hatalar.push({ alan: "curuten", mesaj: "ULID veya null" });
+      hatalar.push({ alan: "curuten", mesaj: "ULID or null" });
     }
   }
 
@@ -177,15 +177,15 @@ export function dogrulaMeta(
   ) {
     hatalar.push({
       alan: "yerine/curuten",
-      mesaj: "K9: aynı uid hem yerine hem curuten olamaz",
+      mesaj: "K9: same uid cannot be both yerine and curuten",
     });
   }
 
   if (!Array.isArray(meta.baglar)) {
-    hatalar.push({ alan: "baglar", mesaj: "dizi zorunlu" });
+    hatalar.push({ alan: "baglar", mesaj: "array required" });
   }
   if (!Array.isArray(meta.etki)) {
-    hatalar.push({ alan: "etki", mesaj: "dizi zorunlu" });
+    hatalar.push({ alan: "etki", mesaj: "array required" });
   }
 
   return { ok: hatalar.length === 0, hatalar, dusurulmusTur };
@@ -212,36 +212,36 @@ export function semaUyarilari(
     "yazan",
     "tarih",
   ] as const) {
-    if (meta[alan] == null || meta[alan] === "") uy(alan, "zorunlu");
+    if (meta[alan] == null || meta[alan] === "") uy(alan, "required");
   }
 
   if (meta.tur != null && !TURLER.includes(meta.tur as Tur)) {
-    uy("tur", `geçersiz: ${meta.tur}`);
+    uy("tur", `invalid: ${meta.tur}`);
   }
   if (
     meta.kapsam != null &&
     !KAPSAMLAR.includes(meta.kapsam as (typeof KAPSAMLAR)[number])
   ) {
-    uy("kapsam", `geçersiz: ${meta.kapsam}`);
+    uy("kapsam", `invalid: ${meta.kapsam}`);
   }
   if (typeof meta.guven !== "number" || meta.guven < 0 || meta.guven > 1) {
-    uy("guven", `0–1 dışı: ${String(meta.guven)}`);
+    uy("guven", `out of 0-1: ${String(meta.guven)}`);
   }
   if (meta.tarih != null && !/^\d{4}-\d{2}-\d{2}/.test(String(meta.tarih))) {
-    uy("tarih", "ISO/YYYY-MM-DD beklenir");
+    uy("tarih", "ISO/YYYY-MM-DD expected");
   }
   if (
     meta.dogrulandi != null &&
     !/^\d{4}-\d{2}-\d{2}/.test(String(meta.dogrulandi))
   ) {
-    uy("dogrulandi", "YYYY-MM-DD veya null");
+    uy("dogrulandi", "YYYY-MM-DD or null");
   }
   if (!Array.isArray(meta.kaynak)) {
-    uy("kaynak", "dizi zorunlu");
+    uy("kaynak", "array required");
   } else {
     meta.kaynak.forEach((k, i) => {
       if (!k || typeof k !== "object") {
-        uy(`kaynak[${i}]`, "nesne olmalı");
+        uy(`kaynak[${i}]`, "must be an object");
         return;
       }
       const r = k as { tur?: string; alindi?: string };
@@ -249,10 +249,10 @@ export function semaUyarilari(
         r.tur != null &&
         !KAYNAK_TURLERI.includes(r.tur as (typeof KAYNAK_TURLERI)[number])
       ) {
-        uy(`kaynak[${i}].tur`, `geçersiz: ${r.tur}`);
+        uy(`kaynak[${i}].tur`, `invalid: ${r.tur}`);
       }
       if (r.alindi != null && !/^\d{4}-\d{2}-\d{2}/.test(r.alindi)) {
-        uy(`kaynak[${i}].alindi`, "YYYY-MM-DD beklenir");
+        uy(`kaynak[${i}].alindi`, "YYYY-MM-DD expected");
       }
     });
   }
@@ -262,7 +262,7 @@ export function semaUyarilari(
 export function dogrulaOlgu(olgu: Olgu): DogrulaSonuc {
   const r = dogrulaMeta(olgu.meta as OlguMeta & Record<string, unknown>);
   if (!olgu.govde || !olgu.govde.trim()) {
-    r.hatalar.push({ alan: "govde", mesaj: "boş olamaz" });
+    r.hatalar.push({ alan: "govde", mesaj: "must not be empty" });
     r.ok = false;
   }
   return r;

@@ -67,7 +67,9 @@ export const RESPONSE_FIELDS: Record<string, string> = {
   iddia: "claim",
   govde: "body",
   talep_id: "request_id",
+  satirNo: "line",
   skor: "score",
+  uyarilar: "warnings",
 };
 
 export const WIRE_FIELDS: Record<string, string> = {
@@ -108,6 +110,123 @@ export const SCOPE_VALUES: Record<string, string> = {
   dunya: "world",
 };
 
+/** Yetki kaydı alanları — tel/hata metninde de aynı harita. */
+export const YETKI_FIELDS: Record<string, string> = {
+  ajan: "agent",
+  seviye: "level",
+  baslangic: "starts_at",
+  sona_erme: "ends_at",
+  eksenler: "axes",
+  turetildi: "derived_from",
+  dokunma: "touch",
+  disa_acilma: "external_exposure",
+  ozerklik: "autonomy",
+  kalicilik: "persistence",
+  gorus: "visibility",
+  harcama: "spend",
+};
+
+/** Dokunma ekseni — yetki gerekçesinde `$1` olarak tele çıkar. */
+export const DOKUNMA_VALUES: Record<string, string> = {
+  yok: "none",
+  salt_okunur: "read_only",
+  yazma: "write",
+  calistirma: "run",
+};
+
+/** Dışa açılma ekseni — `bulut yasak` gerekçesinde `$1`. */
+export const DISA_ACILMA_VALUES: Record<string, string> = {
+  kapali: "closed",
+  yerel_model: "local_model",
+  bulut_model: "cloud_model",
+  serbest: "open",
+};
+
+export const OZERKLIK_VALUES: Record<string, string> = {
+  her_eylemde_sor: "ask_every_action",
+  plan_onay: "plan_approval",
+  cit_icinde_serbest: "free_inside_fence",
+};
+
+export const KALICILIK_VALUES: Record<string, string> = {
+  unutkan: "forgetful",
+  okur: "reader",
+  oneri_yazar: "proposal_writer",
+};
+
+/**
+ * Ürünün ürettiği bütün haritalar. Yeni enum/alan buraya girmeden
+ * export edilirse `sozlukIcAdlar` onu görmez — bekçi `SOZLUK_HARITALARI`
+ * anahtarlarını `*_VALUES`/`*_FIELDS` export kümesiyle kilitler.
+ */
+export const SOZLUK_HARITALARI = {
+  FACT_FIELDS,
+  RESPONSE_FIELDS,
+  YETKI_FIELDS,
+  TYPE_VALUES,
+  SOURCE_TYPE_VALUES,
+  STATE_VALUES,
+  SCOPE_VALUES,
+  DOKUNMA_VALUES,
+  DISA_ACILMA_VALUES,
+  OZERKLIK_VALUES,
+  KALICILIK_VALUES,
+} as const;
+
+/** Kullanıcı içeriği — başlık/iddia/gövde/sunum. Bekçi bunları taramaz. */
+export const KULLANICI_ALANLARI = new Set([
+  "baslik",
+  "iddia",
+  "govde",
+  "sunum",
+  "title",
+  "claim",
+  "body",
+  "presentation",
+]);
+
+/** Tel JSON'undan kullanıcı alanlarını düşür — yalnız ürün sözlüğü kalsın. */
+export function kullaniciAlanlariniSoy(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(kullaniciAlanlariniSoy);
+  if (v && typeof v === "object") {
+    const out: Record<string, unknown> = {};
+    for (const [k, val] of Object.entries(v as Record<string, unknown>)) {
+      if (KULLANICI_ALANLARI.has(k)) continue;
+      out[k] = kullaniciAlanlariniSoy(val);
+    }
+    return out;
+  }
+  return v;
+}
+
+/** İç ad → tel adı. FACT + cevap + yetki — yeni tablo değil, türetim. */
+export function alanHaritasi(): Record<string, string> {
+  return { ...FACT_FIELDS, ...RESPONSE_FIELDS, ...YETKI_FIELDS };
+}
+
+/**
+ * Alan yolu çevirisi: `kaynak[0].tur` → `source[0].type`.
+ * İndeks (`[0]`) korunur; her tanıtıcı segment sözlükten türetilir.
+ * Düz `harita[alan]` indeksli yolları kaçırır — o yüzden segment segment.
+ */
+export function cevirAlanYolu(yol: string): string {
+  const harita = alanHaritasi();
+  return yol.replace(/(^|[^\w])([A-Za-z_][A-Za-z0-9_]*)/g, (_m, p, id) => {
+    return `${p}${harita[id] ?? id}`;
+  });
+}
+
+/** Bekçi: telde kalmaması gereken iç adlar. Kayıttaki her haritadan türetilir. */
+export function sozlukIcAdlar(): string[] {
+  const out = new Set<string>();
+  for (const m of Object.values(SOZLUK_HARITALARI)) {
+    for (const [ic, dis] of Object.entries(m)) {
+      if (ic !== dis) out.add(ic);
+    }
+  }
+  return [...out];
+}
+
 function tersine(m: Record<string, string>): Record<string, string> {
   const out: Record<string, string> = {};
   for (const [ic, dis] of Object.entries(m)) {
@@ -124,6 +243,10 @@ export const TYPE_VALUES_IN = tersine(TYPE_VALUES);
 export const SOURCE_TYPE_VALUES_IN = tersine(SOURCE_TYPE_VALUES);
 export const SCOPE_VALUES_IN = tersine(SCOPE_VALUES);
 export const STATE_VALUES_IN = tersine(STATE_VALUES);
+export const DOKUNMA_VALUES_IN = tersine(DOKUNMA_VALUES);
+export const DISA_ACILMA_VALUES_IN = tersine(DISA_ACILMA_VALUES);
+export const OZERKLIK_VALUES_IN = tersine(OZERKLIK_VALUES);
+export const KALICILIK_VALUES_IN = tersine(KALICILIK_VALUES);
 
 function iceAl(v: unknown, harita: Record<string, string>): unknown {
   return typeof v === "string" ? (harita[v] ?? v) : v;

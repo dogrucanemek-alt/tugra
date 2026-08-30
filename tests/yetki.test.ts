@@ -55,7 +55,9 @@ describe("MULTI Faz 2 — yetki kutusu", () => {
       sona_erme: "suresiz",
     });
     expect(d.ok).toBe(false);
-    expect(d.hatalar.some((h) => /süresiz/i.test(h))).toBe(true);
+    expect(d.hatalar.some((h) => /open-ended|sona_erme required/i.test(h))).toBe(
+      true,
+    );
   });
 
   it("② süresi dolmuş izin çalışmıyor", () => {

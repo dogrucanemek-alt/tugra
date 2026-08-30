@@ -103,6 +103,8 @@ export function akisBildir(
     atlaYetki?: boolean;
     yetkiKok?: string;
     kasaKok?: string;
+    /** Varsayılan true: ayna/cron profilsiz telemetri yazar. MCP false geçer. */
+    dosyaYoksaIzin?: boolean;
   } = {},
 ): AkisBildirSonuc {
   // yetki_talebi kendisi kontrol dışı
@@ -114,12 +116,12 @@ export function akisBildir(
       yetkiKok: secenek.yetkiKok,
       kasaKok: secenek.kasaKok,
       akisKok,
-      dosyaYoksaIzin: true, // profil yoksa telemetri serbest (ayna/cron)
+      dosyaYoksaIzin: secenek.dosyaYoksaIzin ?? true,
     });
     if (!k.izin) {
       return {
         izin: false,
-        talep_id: k.talep_id ?? "yok",
+        talep_id: k.talep_id ?? "none",
         neden: k.neden ?? "yetki yok",
       };
     }
@@ -143,7 +145,7 @@ export function akisBildir(
     if (!(k in tam) && v !== undefined) (tam as Record<string, unknown>)[k] = v;
   }
   if (!olayGecerliMi(tam)) {
-    throw new Error("akis_bildir: zorunlu alan eksik veya geçersiz");
+    throw new Error("event_report: required field missing or invalid");
   }
 
   mkdirSync(akisKok, { recursive: true });

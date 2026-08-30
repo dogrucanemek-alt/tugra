@@ -128,7 +128,7 @@ export function aSeviyeleriOku(kasaKok = varsayilanKasa()): Map<ASeviye, YetkiSk
 export function eksenTuretKasadan(o: Olgu): EksenProfil {
   const m = /^yonetisim\.yetki\.a([0-5])$/i.exec(o.meta.konu);
   if (!m) {
-    throw new Error(`yetki: beklenmeyen konu ${o.meta.konu}`);
+    throw new Error(`authorization: unexpected topic ${o.meta.konu}`);
   }
   const n = Number(m[1]);
   const hay = `${o.meta.baslik}\n${o.govde}`.toLocaleLowerCase("tr");
@@ -266,7 +266,7 @@ export function yetkiMuhurle(
 ): YetkiKayit {
   const skala = aSeviyeleriOku(kasaKok);
   const s = skala.get(girdi.seviye);
-  if (!s) throw new Error(`yetki: ${girdi.seviye} kasada tanımlı değil`);
+  if (!s) throw new Error(`authorization: ${girdi.seviye} not defined in vault`);
   const eksenler = girdi.eksenler ?? structuredClone(s.eksen);
   const turetildi =
     girdi.turetildi && girdi.turetildi.length > 0
@@ -284,38 +284,38 @@ export function yetkiDogrula(
   skala?: Map<ASeviye, YetkiSkala>,
 ): { ok: boolean; hatalar: string[] } {
   const hatalar: string[] = [];
-  if (!kayit.ajan) hatalar.push("ajan zorunlu");
+  if (!kayit.ajan) hatalar.push("agent required");
   if (!kayit.seviye || !/^A[0-5]$/.test(kayit.seviye)) {
-    hatalar.push("seviye A0–A5 olmalı");
+    hatalar.push("level must be A0–A5");
   }
   if (!kayit.baslangic || !Date.parse(kayit.baslangic)) {
-    hatalar.push("baslangic ISO zorunlu");
+    hatalar.push("baslangic must be ISO");
   }
   if (
     kayit.sona_erme == null ||
     kayit.sona_erme === "" ||
     String(kayit.sona_erme).toLowerCase() === "suresiz"
   ) {
-    hatalar.push("süresiz izin verilemez — sona_erme zorunlu");
+    hatalar.push("open-ended grant not allowed — sona_erme required");
   } else if (!Date.parse(kayit.sona_erme)) {
-    hatalar.push("sona_erme ISO zorunlu");
+    hatalar.push("sona_erme must be ISO");
   } else if (
     kayit.baslangic &&
     Date.parse(kayit.sona_erme) <= Date.parse(kayit.baslangic)
   ) {
-    hatalar.push("sona_erme baslangic'tan sonra olmalı");
+    hatalar.push("sona_erme must be after baslangic");
   }
   if (skala && kayit.seviye && !skala.has(kayit.seviye)) {
-    hatalar.push(`seviye ${kayit.seviye} kasada yok`);
+    hatalar.push(`level ${kayit.seviye} not in vault`);
   }
   if ("eksenler" in kayit && kayit.eksenler !== undefined) {
     if (!eksenProfilTamMi(kayit.eksenler)) {
-      hatalar.push("eksenler altı ekseni eksik/bozuk");
+      hatalar.push("eksenler missing/invalid: needs six axes");
     }
   }
   if ("turetildi" in kayit && kayit.turetildi !== undefined) {
     if (!Array.isArray(kayit.turetildi) || kayit.turetildi.length === 0) {
-      hatalar.push("turetildi en az 1 uid ister");
+      hatalar.push("turetildi requires at least 1 uid");
     }
   }
   return { ok: hatalar.length === 0, hatalar };
@@ -329,12 +329,12 @@ export function yetkiYaz(
   const muhurlu = yetkiMuhurle(kayit, kasaKok);
   const skala = aSeviyeleriOku(kasaKok);
   const d = yetkiDogrula(muhurlu, skala);
-  if (!d.ok) throw new Error(`yetki şema: ${d.hatalar.join("; ")}`);
+  if (!d.ok) throw new Error(`authorization schema: ${d.hatalar.join("; ")}`);
   if (!eksenProfilTamMi(muhurlu.eksenler)) {
-    throw new Error("yetki: eksenler mühürlenemedi");
+    throw new Error("authorization: axes could not be sealed");
   }
   if (!muhurlu.turetildi?.length) {
-    throw new Error("yetki: turetildi boş");
+    throw new Error("authorization: derived-from is empty");
   }
   mkdirSync(yetkiKok, { recursive: true });
   writeFileSync(
@@ -383,7 +383,7 @@ export function profilGetir(
   } else {
     const skala = aSeviyeleriOku(kasaKok);
     const s = skala.get(kayit.seviye);
-    if (!s) throw new Error(`yetki: ${kayit.seviye} kasada tanımlı değil`);
+    if (!s) throw new Error(`authorization: ${kayit.seviye} not defined in vault`);
     taban = s.eksen;
   }
   const p: EksenProfil = {
@@ -518,8 +518,16 @@ export function yetkiKontrol(secenek: {
   }
 
   const kul = harcamaKullanilan;
-  const ekToken = secenek.maliyet?.token ?? 0;
-  const ekTl = secenek.maliyet?.tl ?? 0;
+  const token = maliyetKalemDogrula(secenek.maliyet?.token);
+  const tl = maliyetKalemDogrula(secenek.maliyet?.tl);
+  if (!token.ok) {
+    return yetkiTalebiYaz(secenek.ajan, token.neden, akisKok);
+  }
+  if (!tl.ok) {
+    return yetkiTalebiYaz(secenek.ajan, tl.neden, akisKok);
+  }
+  const ekToken = token.deger;
+  const ekTl = tl.deger;
   if (kul.token + ekToken > profil.harcama.token || kul.tl + ekTl > profil.harcama.tl) {
     return yetkiTalebiYaz(secenek.ajan, "harcama tavanı aşıldı", akisKok);
   }
@@ -646,17 +654,40 @@ export function fazlaYetki(
   return { ajan, onerilen_kisit: onerilen, kanit };
 }
 
+/**
+ * Tek maliyet kuralı: gerçek sonlu sayı ve ≥ 0.
+ * NaN / Infinity / dizge / BigInt / valueOf — kontrollü ret, exception yok.
+ */
+export function maliyetKalemDogrula(
+  v: unknown,
+): { ok: true; deger: number } | { ok: false; neden: string } {
+  if (v === undefined || v === null) return { ok: true, deger: 0 };
+  if (typeof v !== "number" || !Number.isFinite(v)) {
+    if (typeof v === "number" && v < 0) {
+      return { ok: false, neden: "negative cost is not accepted" };
+    }
+    return { ok: false, neden: "invalid cost is not accepted" };
+  }
+  if (v < 0) return { ok: false, neden: "negative cost is not accepted" };
+  return { ok: true, deger: v };
+}
+
 export function harcamaEkle(
   ajan: string,
   ek: HarcamaTavan,
   yetkiKok = varsayilanYetkiKok(),
-): void {
+): { ok: true } | { ok: false; neden: string } {
+  const token = maliyetKalemDogrula(ek.token);
+  const tl = maliyetKalemDogrula(ek.tl);
+  if (!token.ok) return token;
+  if (!tl.ok) return tl;
   const kayit = yetkiOku(ajan, yetkiKok);
-  if (!kayit) return;
+  if (!kayit) return { ok: false, neden: "no authorization profile" };
   const kul = kayit.harcama_kullanilan ?? { token: 0, tl: 0 };
   kayit.harcama_kullanilan = {
-    token: kul.token + ek.token,
-    tl: kul.tl + ek.tl,
+    token: kul.token + token.deger,
+    tl: kul.tl + tl.deger,
   };
   writeFileSync(yetkiDosyaYol(ajan, yetkiKok), JSON.stringify(kayit, null, 2) + "\n", "utf8");
+  return { ok: true };
 }
