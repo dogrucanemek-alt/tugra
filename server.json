@@ -1,0 +1,43 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.tugra-ai/tugra",
+  "title": "Tugra",
+  "description": "Provenance-aware memory format for AI agents: every claim carries its source, age and boundary.",
+  "version": "0.1.1",
+  "repository": {
+    "url": "https://github.com/dogrucanemek-alt/tugra",
+    "source": "github"
+  },
+  "websiteUrl": "https://tugra-ai.com",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "tugra",
+      "version": "0.1.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "runtimeHint": "npx",
+      "environmentVariables": [
+        {
+          "name": "TUGRA_KASA",
+          "description": "Vault directory holding the markdown facts.",
+          "isRequired": false,
+          "format": "string"
+        },
+        {
+          "name": "TUGRA_AKIS",
+          "description": "Directory where audit events are appended.",
+          "isRequired": false,
+          "format": "string"
+        },
+        {
+          "name": "TUGRA_YETKI",
+          "description": "Authorization store. When set, every agent needs a profile; unset means single-user mode.",
+          "isRequired": false,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}

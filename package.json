@@ -1,6 +1,7 @@
 {
   "name": "tugra",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "mcpName": "com.tugra-ai/tugra",
   "license": "Apache-2.0",
   "author": "Verax Teknoloji Limited Şirketi",
   "description": "Provenance-aware memory format for AI agents: every claim carries its source, age and boundary.",
