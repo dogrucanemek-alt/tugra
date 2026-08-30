@@ -44,5 +44,13 @@ jobs:
           echo "etiket=$TAG package.json=$PKG"
           test "$TAG" = "$PKG"
 
+      # NODE_AUTH_TOKEN yalniz ILK yayin icin: `npm trust` var olmayan pakete
+      # guven tanimlayamiyor (E404 "Package not found"), yani trusted publishing
+      # tavuk-yumurta. Provenance token'li yolda da uretiliyor — imza id-token
+      # ile atiliyor, token yalnizca yayin YETKISI. Paket olustuktan sonra
+      # `npm trust github "tugra" ...` kurulup secret SILINIR; bu blok bos
+      # NODE_AUTH_TOKEN ile OIDC'ye kendiliginden duser, workflow degismez.
       - name: publish
         run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
