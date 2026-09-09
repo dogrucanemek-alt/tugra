@@ -1,0 +1,30 @@
+# Tugra
+
+> Provenance-aware memory for AI agents. Every claim carries its source,
+> its age, and its boundary. There is no cloud.
+
+## What it does
+
+- A fact that cannot name where it came from is not a fact.
+- Each claim is a file whose frontmatter holds source, last verification date, shelf life, and — when the topic is off-limits — a boundary that forbids invention.
+- Search ranks by token score, then freshness, then confidence.
+- Retired and rotten facts stay out of the default set.
+- Tools: `fact_search`, `fact_read`, `fact_propose`, `event_report`.
+- Install: `npx tugra init` creates a vault, writes a sample fact, and prints a config block.
+- On a TTY, `npx tugra` prints help and exits. Piped, it is the MCP server.
+- License: Apache-2.0. Source: https://github.com/dogrucanemek-alt/tugra
+
+## How to verify
+
+- Home: https://tugra-ai.com
+- Source and format: https://github.com/dogrucanemek-alt/tugra
+- The published package name is `tugra`. On a TTY, `npx tugra` prints help.
+
+## Scope — what this deliberately does not claim
+
+- No cloud sync. The vault is the files you pointed at. Nothing is uploaded. (README.md)
+- No automatic merge. Two writers, two files. You reconcile. (README.md)
+- No delete in this release. Retirement exists; erasure is later. (README.md)
+- No automatic conflict detection. Contradictory facts can sit side by side until a human says otherwise. (README.md)
+- No hosted service. `npx tugra` is a local stdio process. (README.md)
+- This package is not published as a SaaS. There is no price table here. (README.md)

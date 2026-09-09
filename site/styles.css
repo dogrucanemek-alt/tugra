@@ -63,7 +63,22 @@ body {
 }
 .draft-note { font-size: 0.85em; opacity: 0.75; }
 
-.mark { font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 0.75rem; }
+.mark {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 0.75rem;
+  font-size: inherit;
+  line-height: inherit;
+  font-family: inherit;
+}
+#faq h2 {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.45rem;
+}
+#faq p { margin: 0 0 0.35rem; }
 .theme, #copy {
   font-family: var(--mono);
   font-size: 0.75rem;

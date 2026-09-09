@@ -19,10 +19,76 @@
   <meta name="twitter:title" content="Tugra — proven memory for AI agents">
   <meta name="twitter:description" content="Provenance-aware memory for AI agents: source, freshness and boundaries on every claim.">
   <link rel="stylesheet" href="./styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Tugra",
+    "description": "An agent's memory should be proven: source, age, boundary.",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Linux, macOS, Windows",
+    "url": "https://tugra-ai.com",
+    "codeRepository": "https://github.com/dogrucanemek-alt/tugra",
+    "license": "https://www.apache.org/licenses/LICENSE-2.0",
+    "publisher": {
+      "@type": "Organization",
+      "name": "VERAX Teknoloji Limited Şirketi",
+      "url": "https://verax-ai.com"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How does Tugra know a memory is stale?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Each claim stores a last verification date and a shelf life. The table on this page names those fields verified and shelf_life. Search ranks by token score, then freshness, then confidence, so a stale fact ranks behind a fresh one. Retired and rotten facts stay out of the default set."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does Tugra not do?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Tugra does not sync to a cloud. The vault is the files you pointed at; nothing is uploaded. It does not merge two writers automatically. This release has retirement, not erasure. Contradictory facts can sit side by side until a human says otherwise. There is no hosted service: npx tugra is a local stdio process."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I install Tugra?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Run npx tugra init. That creates a vault, writes a sample fact, and prints a config block. Paste the printed config into Claude Desktop, Cursor, or Claude Code. On a TTY, npx tugra prints help and exits. Piped to those hosts, it is the MCP server."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does a Tugra fact carry?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Every claim carries its source, its age, and its boundary. A fact that cannot name where it came from is not a fact. When a topic is off-limits, a boundary forbids invention. Boundary records are always quarantined until a human approves. Confidence is a value from 0 to 1 on every fact."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Tugra run as a hosted service?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "There is no cloud. Tugra is provenance-aware memory for AI agents. The vault is the local files you pointed at. On a TTY the published command prints help and exits; when piped it is the MCP server. The core license is Apache-2.0. This package is not published as a SaaS."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <header class="mast">
-    <p class="mark">Tugra</p>
+    <h1 class="mark">Tugra</h1>
     <button type="button" class="theme" id="theme" aria-label="Toggle color scheme">ink / paper</button>
   </header>
 
@@ -79,6 +145,19 @@
         <li><a href="https://github.com/dogrucanemek-alt/tugra">GitHub — dogrucanemek-alt/tugra</a></li>
         <li><a href="https://github.com/dogrucanemek-alt/tugra#readme">Format + install README</a></li>
       </ul>
+    </section>
+    <section id="faq">
+      <p class="kicker">Questions</p>
+      <h2>How does Tugra know a memory is stale?</h2>
+      <p>Each claim stores a last verification date and a shelf life. The table on this page names those fields verified and shelf_life. Search ranks by token score, then freshness, then confidence, so a stale fact ranks behind a fresh one. Retired and rotten facts stay out of the default set.</p>
+      <h2>What does Tugra not do?</h2>
+      <p>Tugra does not sync to a cloud. The vault is the files you pointed at; nothing is uploaded. It does not merge two writers automatically. This release has retirement, not erasure. Contradictory facts can sit side by side until a human says otherwise. There is no hosted service: npx tugra is a local stdio process.</p>
+      <h2>How do I install Tugra?</h2>
+      <p>Run npx tugra init. That creates a vault, writes a sample fact, and prints a config block. Paste the printed config into Claude Desktop, Cursor, or Claude Code. On a TTY, npx tugra prints help and exits. Piped to those hosts, it is the MCP server.</p>
+      <h2>What does a Tugra fact carry?</h2>
+      <p>Every claim carries its source, its age, and its boundary. A fact that cannot name where it came from is not a fact. When a topic is off-limits, a boundary forbids invention. Boundary records are always quarantined until a human approves. Confidence is a value from 0 to 1 on every fact.</p>
+      <h2>Does Tugra run as a hosted service?</h2>
+      <p>There is no cloud. Tugra is provenance-aware memory for AI agents. The vault is the local files you pointed at. On a TTY the published command prints help and exits; when piped it is the MCP server. The core license is Apache-2.0. This package is not published as a SaaS.</p>
     </section>
     <section id="pricing">
       <p class="kicker">Pricing</p>
