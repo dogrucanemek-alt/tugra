@@ -69,8 +69,10 @@ export function yardimMetni(kasa: string, akis: string, olgu: number): string {
     "  tugra              MCP server when piped; this help on a TTY",
     "  tugra init [dir]   create vault + events, write a sample fact",
     "  tugra doctor       check paths, schema warnings, Node version",
-    "  tugra goc-dil [dir] [--yaz] [--canli]  migrate frontmatter keys (dry default;",
-    "                               --canli required to write your configured vault)",
+    "  tugra goc-dil [dir] [--yaz] [--canli] [--taslaklar]",
+    "                     migrate frontmatter to English (dry by default;",
+    "                     --canli required to write your configured vault;",
+    "                     --taslaklar also walks unaccepted drafts)",
     "  tugra --version",
     "",
     "Paste this into Claude Desktop / Cursor MCP config:",
@@ -246,12 +248,13 @@ export function tugraCli(io: CliIo): CliSonuc {
   if (args[0] === "goc-dil") {
     const yaz = args.includes("--yaz");
     const canli = args.includes("--canli");
-    const hedef = args.find(
-      (a) => a !== "goc-dil" && a !== "--yaz" && a !== "--canli",
-    );
+    const taslaklar = args.includes("--taslaklar");
+    const bayraklar = new Set(["goc-dil", "--yaz", "--canli", "--taslaklar"]);
+    const hedef = args.find((a) => !bayraklar.has(a));
     const r = gocDil(hedef ? resolve(io.cwd, hedef) : varsayilanKasa(), {
       yaz,
       canli,
+      taslaklar,
     });
     if (r.reddedildi) {
       io.stderr.write(`tugra goc-dil: ${r.reddedildi}\n`);

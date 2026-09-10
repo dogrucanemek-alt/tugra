@@ -43,7 +43,16 @@ export function parseOlguDosya(metin: string, yol?: string): Olgu {
 /** OKF §3.1 — kavram dosyası değil; yukleKasa bunları olgu sanmasın */
 const REZERVE_MD = new Set(["index.md", "log.md"]);
 
-export function taraMarkdown(kok: string): string[] {
+/**
+ * `taslaklar` yalnız **bakım** çağrıları içindir (dil göçü gibi): kabul
+ * edilmemiş taslakları da yürür. Varsayılan KAPALI ve öyle kalmalı — taslak
+ * gökyüzüne ve indekse çıkmaz, bu kural gevşetilmedi. Bir taslağı okumak
+ * onu olgu saymak değildir; onu okumadan da çeviremeyiz.
+ */
+export function taraMarkdown(
+  kok: string,
+  opts: { taslaklar?: boolean } = {},
+): string[] {
   if (!existsSync(kok)) return [];
   const out: string[] = [];
   const stack = [kok];
@@ -54,7 +63,12 @@ export function taraMarkdown(kok: string): string[] {
       if (ent.isDirectory()) {
         if (ent.name.startsWith(".")) continue;
         // Kabul edilmemiş taslak gökyüzüne/indekse çıkmaz
-        if (ent.name === "_oneriler" || ent.name === "_karantina") continue;
+        if (
+          !opts.taslaklar &&
+          (ent.name === "_oneriler" || ent.name === "_karantina")
+        ) {
+          continue;
+        }
         stack.push(p);
       } else if (
         ent.isFile() &&

@@ -8,7 +8,7 @@ import {
   readFileSync,
   writeFileSync,
 } from "node:fs";
-import { join, resolve } from "node:path";
+import { join, resolve, sep } from "node:path";
 import YAML from "yaml";
 import { parseOlguDosya, taraMarkdown } from "./dosya.js";
 import { kokpitKok, varsayilanKasa } from "./yollar.js";
@@ -44,9 +44,21 @@ export function canliKasaYolu(): string {
   return korunanKasalar()[0]!;
 }
 
+/**
+ * 🔴 2026-09-10: this compared paths for EQUALITY, so `<kasa>/_oneriler` —
+ * a directory inside the vault the guard defends — was not protected, and
+ * `--yaz` alone would have written there. Same shape as the 2026-08-29
+ * finding above: the guard looked at one path instead of at intent.
+ *
+ * The separator matters. A bare prefix test would also swallow a sibling
+ * like `<kasa>-yedek` or `<kasa>.goc-yedek` and refuse a legitimate write;
+ * those are next to the vault, not in it.
+ */
 export function canliKasaMi(hedef: string): boolean {
   const h = resolve(hedef);
-  return korunanKasalar().some((k) => k === h);
+  return korunanKasalar().some(
+    (k) => k === h || h.startsWith(k.endsWith(sep) ? k : k + sep),
+  );
 }
 
 /**
@@ -160,7 +172,7 @@ export function gocDilDogrula(onceKok: string, sonraKok: string): string[] {
 
 export function gocDil(
   kasaKok: string,
-  opts: { yaz?: boolean; canli?: boolean } = {},
+  opts: { yaz?: boolean; canli?: boolean; taslaklar?: boolean } = {},
 ): GocDilSonuc {
   const kok = resolve(kasaKok);
   // Önizleme (--dry) her yerde serbest: hiçbir şey yazmaz, korkulacak bir
@@ -175,7 +187,7 @@ export function gocDil(
         "korunan kasa — önce kopyada dene; gerçekten bunu istiyorsan --canli ekle (yedek yine de alınır)",
     };
   }
-  const dosyalar = taraMarkdown(kok);
+  const dosyalar = taraMarkdown(kok, { taslaklar: opts.taslaklar });
   const dry = !opts.yaz;
   let yazilan = 0;
   let atlanan = 0;
