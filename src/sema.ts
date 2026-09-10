@@ -135,9 +135,17 @@ export function varsayilanRafOmru(
   return "90g";
 }
 
+/**
+ * Accepts both spellings on purpose. The reader is the migration's safety
+ * belt: a vault written before the value was translated must keep parsing,
+ * and a reader who writes the English form the page promises must not be
+ * told `Invalid shelf_life`. The writer emits only English -
+ * `vocabulary.rafOmruDisaYaz` - so the old shapes leave on their own.
+ */
 export function parseRafOmru(raw: string): RafOmru {
-  if (raw === "suresiz") return { tur: "suresiz" };
-  const m = /^(\d+)g$/.exec(raw.trim());
+  const t = raw.trim();
+  if (t === "suresiz" || t === "indefinite") return { tur: "suresiz" };
+  const m = /^(\d+)[gd]$/.exec(t);
   if (!m) throw new Error(`Invalid shelf_life: ${raw}`);
   return { tur: "gun", gun: Number(m[1]) };
 }

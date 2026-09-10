@@ -68,7 +68,7 @@ owner: patron
 author: agent@example
 date: 2026-08-01T00:00:00.000Z
 confidence: 0.9
-shelf_life: 180g
+shelf_life: 180d
 verified: 2026-08-01
 source:
   - type: file
@@ -207,10 +207,14 @@ describe("YAYIN/1 A: yazıcı İngilizce", () => {
     expect(fm).toContain("type: rule");
     expect(fm).toContain("scope: org");
     expect(fm).toContain("confidence: 0.9");
-    expect(fm).toContain("shelf_life: 180g");
+    expect(fm).toContain("shelf_life: 180d");
     expect(fm).toContain("type: file");
     expect(fm).toContain("pointer: policy/x.md#L1");
     expect(fm).toContain("planet:");
+    // 🔴 2026-09-10: keys were English while `shelf_life` still said
+    // `suresiz` / `180g`. This guard read keys only, so it stayed green
+    // through it. A Turkish VALUE is a leak too.
+    expect(fm, "Türkçe değer sızdı").not.toMatch(/^\s*\S+:\s*(suresiz|\d+g)\s*$/m);
   });
 
   it("opsiyonel alan bekçisi: şemadaki her opsiyonel alan yazılıp geri okunur", () => {

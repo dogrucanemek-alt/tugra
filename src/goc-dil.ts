@@ -12,11 +12,7 @@ import { join, resolve } from "node:path";
 import YAML from "yaml";
 import { parseOlguDosya, taraMarkdown } from "./dosya.js";
 import { kokpitKok, varsayilanKasa } from "./yollar.js";
-import {
-  FACT_FIELDS,
-  frontmatterDisaYaz,
-  frontmatterIceAl,
-} from "./vocabulary.js";
+import { frontmatterDisaYaz, frontmatterIceAl } from "./vocabulary.js";
 
 const OKF_SADECE = new Set([
   "tags",
@@ -25,10 +21,6 @@ const OKF_SADECE = new Set([
   "stale_after",
   "status",
 ]);
-
-const TURKCE_ANAHTAR = Object.entries(FACT_FIELDS)
-  .filter(([ic, dis]) => ic !== dis)
-  .map(([ic]) => ic);
 
 /**
  * Korunan kasalar — yola değil NİYETE bakan bekçinin kapsamı.
@@ -57,22 +49,41 @@ export function canliKasaMi(hedef: string): boolean {
   return korunanKasalar().some((k) => k === h);
 }
 
-function turkceAnahtarVar(kayit: Record<string, unknown>): boolean {
-  if (Object.keys(kayit).some((k) => TURKCE_ANAHTAR.includes(k))) return true;
-  const src = kayit.kaynak;
-  if (Array.isArray(src)) {
-    return src.some(
-      (s) =>
-        s &&
-        typeof s === "object" &&
-        Object.keys(s as object).some((k) => TURKCE_ANAHTAR.includes(k)),
-    );
+/**
+ * Key order is not a difference. Comparing serialised frontmatter directly
+ * would rewrite every already-English file, because the writer puts `uid`
+ * first; churn on 396 files is not a migration, it is noise.
+ */
+function kararliJson(v: unknown): string {
+  if (Array.isArray(v)) return `[${v.map(kararliJson).join(",")}]`;
+  if (v && typeof v === "object") {
+    const o = v as Record<string, unknown>;
+    return `{${Object.keys(o)
+      .sort()
+      .map((k) => `${JSON.stringify(k)}:${kararliJson(o[k])}`)
+      .join(",")}}`;
   }
-  const uretici = kayit.uretici;
-  if (uretici && typeof uretici === "object") {
-    return Object.keys(uretici as object).some((k) => TURKCE_ANAHTAR.includes(k));
-  }
-  return false;
+  return JSON.stringify(v) ?? "null";
+}
+
+/**
+ * Whether this file still says anything in the old language.
+ *
+ * 🔴 2026-09-10: this used to ask "does a KEY appear in the Turkish list",
+ * which was right while only keys were translated. When the shelf_life VALUE
+ * moved too, the check left a hole shaped exactly like the defect: a file
+ * with English keys and `shelf_life: suresiz` answered "nothing to do" and
+ * stayed mixed forever.
+ *
+ * 🔑 The detector is now the translator itself. It cannot fall behind what
+ * gets translated, because it is the same code path — a new translation is
+ * covered on the day it is written, with nothing to remember.
+ */
+function gocGerekliMi(
+  kayit: Record<string, unknown>,
+  sonuc: Record<string, unknown>,
+): boolean {
+  return kararliJson(kayit) !== kararliJson(sonuc);
 }
 
 export function gocFrontmatterMetni(metin: string): {
@@ -86,7 +97,6 @@ export function gocFrontmatterMetni(metin: string): {
     return { metin, degisti: false };
   }
   const kayit = ham as Record<string, unknown>;
-  if (!turkceAnahtarVar(kayit)) return { metin, degisti: false };
 
   const okf: Record<string, unknown> = {};
   const urun: Record<string, unknown> = {};
@@ -100,6 +110,8 @@ export function gocFrontmatterMetni(metin: string): {
     unknown
   >;
   const birlesik = { ...dis, ...okf };
+  if (!gocGerekliMi(kayit, birlesik)) return { metin, degisti: false };
+
   const yeniFm = YAML.stringify(birlesik, { lineWidth: 0 }).trimEnd();
   return { metin: `---\n${yeniFm}\n---\n${m[2]}`, degisti: true };
 }

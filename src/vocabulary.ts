@@ -253,6 +253,29 @@ function iceAl(v: unknown, harita: Record<string, string>): unknown {
 }
 
 /**
+ * Shelf life is not an enum, so it cannot ride on a lookup table: it is
+ * either "indefinite" or a day count, and the day count carries a unit
+ * letter that has to be translated with it (`g` is `gun`).
+ *
+ * Both directions leave an unrecognised value untouched. A vault may hold a
+ * spelling this build has never seen; mangling it would be worse than
+ * passing it through to the validator, which reports it by name.
+ */
+export function rafOmruDisaYaz(v: unknown): unknown {
+  if (typeof v !== "string") return v;
+  if (v === "suresiz") return "indefinite";
+  const m = /^(\d+)g$/.exec(v.trim());
+  return m ? `${m[1]}d` : v;
+}
+
+export function rafOmruIceAl(v: unknown): unknown {
+  if (typeof v !== "string") return v;
+  if (v === "indefinite") return "suresiz";
+  const m = /^(\d+)d$/.exec(v.trim());
+  return m ? `${m[1]}g` : v;
+}
+
+/**
  * Hoşgörülü okuyucu: frontmatter İngilizce de olabilir, Türkçe de.
  *
  * Göçün emniyet kemeri — dosyalar çevrilirken kasa hiç kırılmaz, iki şekil
@@ -271,6 +294,8 @@ export function frontmatterIceAl(ham: unknown): unknown {
       out[ic] = iceAl(v, TYPE_VALUES_IN);
     } else if (ic === "kapsam") {
       out[ic] = iceAl(v, SCOPE_VALUES_IN);
+    } else if (ic === "raf_omru") {
+      out[ic] = rafOmruIceAl(v);
     } else if (ic === "kaynak" && Array.isArray(v)) {
       out[ic] = v.map((k2) => {
         if (!k2 || typeof k2 !== "object") return k2;
@@ -316,6 +341,8 @@ export function frontmatterDisaYaz(ham: unknown): unknown {
       out[dis] = disaYaz(v, TYPE_VALUES);
     } else if (ic === "kapsam") {
       out[dis] = disaYaz(v, SCOPE_VALUES);
+    } else if (ic === "raf_omru") {
+      out[dis] = rafOmruDisaYaz(v);
     } else if (ic === "kaynak" && Array.isArray(v)) {
       out[dis] = v.map((k2) => {
         if (!k2 || typeof k2 !== "object") return k2;
