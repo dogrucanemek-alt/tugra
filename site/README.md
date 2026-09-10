@@ -1,7 +1,8 @@
 # tugra-ai.com
 
-Static one-pager. Copy **approved 2026-08-30** (`METIN_TASLAK.md`).
-Any change to a sentence needs approval again.
+Static one-pager. Copy **approved 2026-08-30**, FAQ section **approved
+2026-09-10**. Any change to a sentence needs approval again, and a sentence
+reaches the page only after it is in the approved copy.
 
 ```bash
 cd site
