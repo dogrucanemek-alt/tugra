@@ -3,6 +3,7 @@
  * İnsan çıktısı stderr; stdout JSON-RPC kanalıdır.
  */
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { join, resolve } from "node:path";
 import { olguDosyaMetni, yukleKasa } from "./dosya.js";
 import { semaUyarilari } from "./dogrula.js";
@@ -12,7 +13,15 @@ import { eskiOrtamUyarilari, varsayilanAkis, varsayilanKasa } from "./yollar.js"
 import { gocDil } from "./goc-dil.js";
 import { varsayilanYetkiKok } from "./yetki.js";
 
-export const TUGRA_SURUM = "0.1.0";
+/**
+ * The version is declared in exactly one place: `package.json`. While it was
+ * written by hand here it went stale — the published 0.1.1 package introduced
+ * itself as 0.1.0. All three layouts put `package.json` one directory up:
+ * `src/`, `dist/`, `dist-paket/`. Guard: `tests/surum.test.ts`.
+ */
+export const TUGRA_SURUM: string = (
+  createRequire(import.meta.url)("../package.json") as { version: string }
+).version;
 
 export type CliMode = "help" | "init" | "doctor" | "version" | "server";
 

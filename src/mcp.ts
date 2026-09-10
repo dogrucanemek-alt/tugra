@@ -16,7 +16,7 @@ import type { KaynakTur, Tur } from "./sema.js";
 import { MCP_OKUMA_AJAN, yetkiKontrol } from "./yetki.js";
 
 export { MCP_OKUMA_AJAN };
-import { tugraCli } from "./kurulum.js";
+import { TUGRA_SURUM, tugraCli } from "./kurulum.js";
 import { konuHaritasiYukle } from "./konu.js";
 import { varsayilanAkis, varsayilanKasa } from "./yollar.js";
 
@@ -297,12 +297,19 @@ export async function tugraArac(
   return jsonCevap(r.izin ? { ok: true, ...r } : { ok: false, ...r });
 }
 
+/**
+ * The identity reported to the host. The version derives from `package.json`,
+ * and this is the very object the server receives — so the guard measures what
+ * the host is actually told, not a copy of it.
+ */
+export const TUGRA_MCP_BILGI = {
+  name: "tugra",
+  version: TUGRA_SURUM,
+};
+
 export function createTugraMcp(secenek: TugraMcpSecenek = {}): McpServer {
   konuHaritasiYukle(secenek.kasaKok ?? varsayilanKasa());
-  const server = new McpServer({
-    name: "tugra",
-    version: "0.1.0",
-  });
+  const server = new McpServer(TUGRA_MCP_BILGI);
 
   server.registerTool(
     "fact_search",

@@ -3,7 +3,7 @@
   "name": "com.tugra-ai/tugra",
   "title": "Tugra",
   "description": "Provenance-aware memory format for AI agents: every claim carries its source, age and boundary.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "repository": {
     "url": "https://github.com/dogrucanemek-alt/tugra",
     "source": "github"
@@ -13,7 +13,7 @@
     {
       "registryType": "npm",
       "identifier": "tugra",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "transport": {
         "type": "stdio"
       },

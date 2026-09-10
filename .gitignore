@@ -2,6 +2,9 @@ node_modules/
 dist/
 dist-paket/
 *.tgz
+# vercel link and local env: the public tree is a live deploy directory
+.vercel
+.env*
 tugra-pack-n-meta.json
 tugra-pack-rpc-meta.json
 *.log
