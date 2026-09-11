@@ -7,7 +7,7 @@
  * Compatibility lines are exempt by prefix, not by name, so the old names
  * can stay on that one sentence without going stale in the examples.
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { motorKok, varsayilanKasa } from "../src/yollar.js";
@@ -90,14 +90,24 @@ function belgedekiKusurlar(ham: string): string[] {
 
 describe("setting names the user types are English", () => {
   it("server.json environmentVariables[].name is an English name", () => {
-    const kayit = JSON.parse(
-      readFileSync(resolve(motorKok(), "server.json"), "utf8"),
-    ) as {
-      packages: { environmentVariables: { name: string }[] }[];
-    };
-    const adlar = kayit.packages.flatMap((p) =>
-      (p.environmentVariables ?? []).map((e) => e.name),
-    );
+    // server.json exists only in the published tree; in the source tree the
+    // publish script writes it. Read whichever is present, never neither:
+    // the names hid in the generator once, where no guard was looking.
+    const kayitYolu = resolve(motorKok(), "server.json");
+    const uretenYolu = resolve(motorKok(), "..", "scripts", "yayin2-public-kopya.mjs");
+    let adlar: string[];
+    if (existsSync(kayitYolu)) {
+      const kayit = JSON.parse(readFileSync(kayitYolu, "utf8")) as {
+        packages: { environmentVariables: { name: string }[] }[];
+      };
+      adlar = kayit.packages.flatMap((p) =>
+        (p.environmentVariables ?? []).map((e) => e.name),
+      );
+    } else {
+      const ureten = readFileSync(uretenYolu, "utf8");
+      const blok = ureten.slice(ureten.indexOf("environmentVariables"));
+      adlar = [...blok.matchAll(/name: "(TUGRA_[A-Z_]+)"/g)].map((m) => m[1]);
+    }
     expect(adlar.length).toBeGreaterThan(0);
     const yabanci = adlar.filter((ad) => !INGILIZCE_AYAR.has(ad));
     expect(yabanci, `not an English setting name: ${yabanci.join(", ")}`).toEqual(

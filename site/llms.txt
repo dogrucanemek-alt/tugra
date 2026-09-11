@@ -16,6 +16,10 @@
 
 ## How to verify
 
+- The three questions asked about agent memory: keeping every claim sourced and verifiable,
+  which MCP memory server tracks source/freshness/shelf life, and how a boundary record stops
+  invention on a topic with no evidence. Uses the on-disk frontmatter field names:
+  https://tugra-ai.com/memory-provenance-for-agents
 - Home: https://tugra-ai.com
 - Source and format: https://github.com/dogrucanemek-alt/tugra
 - The published package name is `tugra`. On a TTY, `npx tugra` prints help.

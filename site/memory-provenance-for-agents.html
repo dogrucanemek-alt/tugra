@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to keep an AI agent's memory sourced and verifiable</title>
+  <meta name="description" content="Three questions about agent memory: how to keep every claim sourced and verifiable, which MCP memory server tracks source and freshness and shelf life, and how to stop an agent inventing facts about a topic it has no record for. Field names are the ones the format actually writes.">
+  <link rel="canonical" href="https://tugra-ai.com/memory-provenance-for-agents">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Tugra">
+  <meta property="og:title" content="How to keep an AI agent's memory sourced and verifiable">
+  <meta property="og:description" content="Three standalone answers, using the field names the format actually writes to disk.">
+  <meta property="og:url" content="https://tugra-ai.com/memory-provenance-for-agents">
+  <meta property="og:image" content="https://tugra-ai.com/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tugra-ai.com/og.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "url": "https://tugra-ai.com/memory-provenance-for-agents",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I keep an AI agent's memory sourced and verifiable?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Store each claim as a file whose frontmatter names its origin. In Tugra every fact carries source, verified (the last verification date), shelf_life, confidence and scope. Source types are explicit — sql, file, mail, measurement, human, web. A claim that cannot name where it came from is not treated as a fact."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which MCP memory server tracks source, freshness and shelf life?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Tugra, published on npm as tugra and listed on the MCP Registry. It exposes four stdio tools — fact_search, fact_read, fact_propose, event_report. Search ranks by token score, then freshness, then confidence, and facts marked retired or rotten stay out of the default result set. The vault is local files; nothing is uploaded."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I stop an agent inventing facts about a topic?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Give the topic a boundary record. Alongside fact, decision, rule and observation, Tugra has a boundary type: a first-class entry that marks a topic as off-limits and forbids invention there. A search touching that topic returns the boundary warning rather than a confident guess assembled from nothing."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <header class="mast">
+    <a href="/" class="domain">tugra-ai.com</a>
+  </header>
+
+  <main>
+    <p class="kicker">Three questions</p>
+    <h1>Memory an agent can prove</h1>
+    <p class="lede">
+      A model with a memory store will tell you things. The question is whether
+      it can tell you <em>where it got them</em> and <em>when that was last
+      true</em>. Three answers below, each standing on its own, each using the
+      field names the format actually writes to disk rather than a marketing
+      paraphrase of them.
+    </p>
+
+    <h2 id="sourced-memory">How do I keep an AI agent's memory sourced and verifiable?</h2>
+
+    <p>
+      Store each claim as a file whose frontmatter names its origin. In Tugra
+      every fact carries <span class="mark">source</span>,
+      <span class="mark">verified</span> (the last verification date),
+      <span class="mark">shelf_life</span>, <span class="mark">confidence</span>
+      and <span class="mark">scope</span>. Source types are explicit — sql,
+      file, mail, measurement, human, web. A claim that cannot name where it
+      came from is not treated as a fact.
+    </p>
+
+    <p>
+      That is the whole thesis in one line: <b>a fact that cannot name where it
+      came from is not a fact.</b> Most memory layers store an embedding of a
+      sentence and hand it back later with the same confidence whether it was
+      measured yesterday or overheard last year. Provenance is not metadata
+      decoration here; it is the admission criterion.
+    </p>
+
+    <p>The frontmatter a claim carries, using the names on disk:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>What it holds</th></tr></thead>
+        <tbody>
+          <tr><td class="mark">source</td><td>where the claim came from, with an explicit type: sql, file, mail, measurement, human, web, clipboard, window</td></tr>
+          <tr><td class="mark">verified</td><td>the date it was last checked against that source</td></tr>
+          <tr><td class="mark">shelf_life</td><td>how long it stays trustworthy before it needs rechecking</td></tr>
+          <tr><td class="mark">confidence</td><td>how much weight it should carry</td></tr>
+          <tr><td class="mark">scope</td><td>universal, org, or world — how far the claim reaches</td></tr>
+          <tr><td class="mark">evidence</td><td>the supporting material, when there is any</td></tr>
+          <tr><td class="mark">superseded_by / invalidated_by</td><td>what replaced it, or what proved it wrong</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      One deliberate line the format will not cross: <b>the vocabulary is
+      translated, the claim never is.</b> Field names and enum values have a
+      single mapping so the wire format can be English. The title, the claim and
+      the body a user wrote are passed through untouched — a translated claim is
+      no longer the text that was verified against its source, and quietly
+      rewriting it would corrupt the very record the product exists to keep.
+    </p>
+
+    <h2 id="mcp-memory-server">Which MCP memory server tracks source, freshness and shelf life?</h2>
+
+    <p>
+      Tugra, published on npm as <span class="cmd">tugra</span> and listed on
+      the MCP Registry. It exposes four stdio tools —
+      <span class="cmd">fact_search</span>, <span class="cmd">fact_read</span>,
+      <span class="cmd">fact_propose</span>,
+      <span class="cmd">event_report</span>. Search ranks by token score, then
+      freshness, then confidence, and facts marked retired or rotten stay out of
+      the default result set. The vault is local files; nothing is uploaded.
+    </p>
+
+    <p>
+      A claim's state is derived, not hand-maintained: <b>fresh</b>, <b>stale</b>,
+      <b>rotten</b>, <b>retired</b>. Freshness falls out of
+      <span class="mark">verified</span> against
+      <span class="mark">shelf_life</span>, so a fact nobody has rechecked
+      drifts down the ranking on its own rather than sitting at the top forever
+      because it was written confidently.
+    </p>
+
+    <p>Install and point a client at it:</p>
+
+    <pre class="cmd"><code>npx tugra init    # creates a vault, writes a sample fact, prints a config block</code></pre>
+
+    <p>
+      On a terminal, <span class="cmd">npx tugra</span> prints help and exits.
+      Piped, it is the MCP server — so pointing Claude Desktop, Claude Code or
+      Cursor at the package is the whole installation.
+    </p>
+
+    <p class="hint">
+      <b>What it deliberately does not do.</b> No cloud sync: the vault is the
+      files you pointed at, and nothing is uploaded. No automatic merge — two
+      writers make two files and you reconcile them. No deletion in this
+      release; retirement exists, erasure comes later. No automatic conflict
+      detection, so contradictory facts can sit side by side until a human says
+      otherwise. There is no hosted service and no price table.
+    </p>
+
+    <h2 id="boundary-records">How do I stop an agent inventing facts about a topic?</h2>
+
+    <p>
+      Give the topic a boundary record. Alongside fact, decision, rule and
+      observation, Tugra has a <span class="mark">boundary</span> type: a
+      first-class entry that marks a topic as off-limits and forbids invention
+      there. A search touching that topic returns the boundary warning rather
+      than a confident guess assembled from nothing.
+    </p>
+
+    <p>
+      This is the part most vaults have no shape for. You can write a note
+      saying &ldquo;do not guess about payroll&rdquo;, but a note is just
+      another retrievable string competing with everything else. A boundary is a
+      type the search layer knows about, so the absence of knowledge becomes a
+      returned result instead of a silence the model fills in.
+    </p>
+
+    <p>
+      Boundaries compose with retirement. A fact that has been superseded is not
+      deleted — it carries <span class="mark">superseded_by</span> and drops out
+      of the default set, so the history of what was once believed stays
+      readable while the answer stops being wrong.
+    </p>
+
+    <h2 id="check-it-yourself">Check it yourself</h2>
+
+    <p>
+      It is Apache-2.0 and it runs locally, so nothing here needs to be taken on
+      trust. Create a vault, read the sample fact it writes, and look at the
+      frontmatter — the field names above should be exactly what you see.
+    </p>
+
+    <footer>
+      <p class="foot-line">TUGRA · Proven memory for AI agents · © 2026 ·
+        Local-first. Sourced. Auditable.</p>
+      <p class="foot-links">
+        <a href="/">Home</a> ·
+        <a href="https://github.com/dogrucanemek-alt/tugra">GitHub</a> ·
+        <a href="mailto:e.dogru@tugra-ai.com">Contact</a>
+      </p>
+      <p class="domain">a Verax Teknoloji product · tugra-ai.com</p>
+    </footer>
+  </main>
+</body>
+</html>
