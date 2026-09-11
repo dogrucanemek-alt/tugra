@@ -27,10 +27,10 @@ Stored field names stay in the vault's native shape (`kaynak`, `guven`, `raf_omr
 
 `tugra init` is enough to start. Override the two paths only if you already have a vault elsewhere. Without them, the server looks next to the installed package — that is wrong for a bare `npx` with no init.
 
-- `TUGRA_KASA` — vault (markdown facts)
-- `TUGRA_AKIS` — telemetry directory
+- `TUGRA_VAULT` — vault (markdown facts)
+- `TUGRA_EVENTS` — telemetry directory
 
-Authorization: if no authorization store is configured, **single-user mode** is on — search and propose work without a profile. If an authorization store *is* configured (a `yetki/` directory, or `TUGRA_YETKI`), each agent needs a JSON profile or search returns unauthorized.
+Authorization: if no authorization store is configured, **single-user mode** is on — search and propose work without a profile. If an authorization store *is* configured (a `yetki/` directory, or `TUGRA_AUTH`), each agent needs a JSON profile or search returns unauthorized.
 
 ### Claude Desktop
 
@@ -43,8 +43,8 @@ Authorization: if no authorization store is configured, **single-user mode** is 
       "command": "npx",
       "args": ["-y", "tugra"],
       "env": {
-        "TUGRA_KASA": "/absolute/path/to/vault",
-        "TUGRA_AKIS": "/absolute/path/to/events"
+        "TUGRA_VAULT": "/absolute/path/to/vault",
+        "TUGRA_EVENTS": "/absolute/path/to/events"
       }
     }
   }
@@ -62,8 +62,8 @@ Authorization: if no authorization store is configured, **single-user mode** is 
       "command": "npx",
       "args": ["-y", "tugra"],
       "env": {
-        "TUGRA_KASA": "/absolute/path/to/vault",
-        "TUGRA_AKIS": "/absolute/path/to/events"
+        "TUGRA_VAULT": "/absolute/path/to/vault",
+        "TUGRA_EVENTS": "/absolute/path/to/events"
       }
     }
   }
@@ -81,8 +81,8 @@ Authorization: if no authorization store is configured, **single-user mode** is 
       "command": "npx",
       "args": ["-y", "tugra"],
       "env": {
-        "TUGRA_KASA": "/absolute/path/to/vault",
-        "TUGRA_AKIS": "/absolute/path/to/events"
+        "TUGRA_VAULT": "/absolute/path/to/vault",
+        "TUGRA_EVENTS": "/absolute/path/to/events"
       }
     }
   }
@@ -100,8 +100,8 @@ Authorization: if no authorization store is configured, **single-user mode** is 
       "command": "npx",
       "args": ["-y", "tugra"],
       "env": {
-        "TUGRA_KASA": "/absolute/path/to/vault",
-        "TUGRA_AKIS": "/absolute/path/to/events"
+        "TUGRA_VAULT": "/absolute/path/to/vault",
+        "TUGRA_EVENTS": "/absolute/path/to/events"
       }
     }
   }
@@ -118,8 +118,8 @@ command = "npx"
 args = ["-y", "tugra"]
 
 [mcp_servers.tugra.env]
-TUGRA_KASA = "/absolute/path/to/vault"
-TUGRA_AKIS = "/absolute/path/to/events"
+TUGRA_VAULT = "/absolute/path/to/vault"
+TUGRA_EVENTS = "/absolute/path/to/events"
 ```
 
 Windows: use a full path (`C:\\Users\\…\\vault`). Node 20 or newer.
@@ -128,7 +128,7 @@ More client notes: [docs/install.md](https://github.com/dogrucanemek-alt/tugra/b
 
 ## Shared-vault authorization (optional)
 
-Single-user setups do **not** need this. Add `TUGRA_YETKI` only when several agents share one vault and each needs its own profile (`mcp-readonly@tugra` and others as JSON files in that directory). A missing profile then returns unauthorized. An empty `TUGRA_YETKI` is treated as unset — single-user mode stays on.
+Single-user setups do **not** need this. Add `TUGRA_AUTH` only when several agents share one vault and each needs its own profile (`mcp-readonly@tugra` and others as JSON files in that directory). A missing profile then returns unauthorized. An empty `TUGRA_AUTH` is treated as unset — single-user mode stays on.
 
 ## Host library surface (not the MCP wire)
 
@@ -138,9 +138,9 @@ Those modules are public on purpose. `akisBildir({ atlaYetki: true })`, `eylem: 
 
 ### Scale vault vs target vault
 
-A0–A5 levels are facts (`yonetisim.yetki.a0` … `a5`) in a vault. The stdio server reads them from `TUGRA_KASA`, or from the cockpit `kasa/` when that variable is unset.
+A0–A5 levels are facts (`yonetisim.yetki.a0` … `a5`) in a vault. The stdio server reads them from `TUGRA_VAULT`, or from the cockpit `kasa/` when that variable is unset.
 
-`tugraArac` / `createTugraMcp` take an optional `kasaKok` (the write/search **target**). Scale does **not** follow that target. It defaults to `varsayilanKasa()` — the same central vault the stdio server uses. A host that points `kasaKok` at a data-only tree keeps using the cockpit / `TUGRA_KASA` scale. To read scale from a different tree, pass `skalaKasa` explicitly.
+`tugraArac` / `createTugraMcp` take an optional `kasaKok` (the write/search **target**). Scale does **not** follow that target. It defaults to `varsayilanKasa()` — the same central vault the stdio server uses. A host that points `kasaKok` at a data-only tree keeps using the cockpit / `TUGRA_VAULT` scale. To read scale from a different tree, pass `skalaKasa` explicitly.
 
 All four tools share one resolver. This is the contract: separate target + central governance stays reachable. YAYIN/12 briefly defaulted scale to `kasaKok`; that broke the split-root host. YAYIN/13 restores the central default.
 
@@ -175,4 +175,4 @@ Apache-2.0. See `LICENSE` and `NOTICE`.
 
 The marketing page lives in `../site/` (`npm run preview` there). It is not deployed from this package.
 
-Compatibility: `TALAMUS_*` and `MULTI_*` names still work as fallback if `TUGRA_*` is unset.
+Compatibility: `TUGRA_KASA`, `TUGRA_AKIS`, `TUGRA_YETKI` (and the older `TALAMUS_*` / `MULTI_*` names) still work as a fallback when the English name is unset.

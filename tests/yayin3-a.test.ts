@@ -15,10 +15,13 @@ import {
 import { tempKok, temizle } from "./helpers.js";
 
 const ORTAM = [
+  "TUGRA_VAULT",
   "TUGRA_KASA",
   "TALAMUS_KASA",
+  "TUGRA_HOME",
   "TUGRA_KOKPIT",
   "TALAMUS_KOKPIT",
+  "TUGRA_AUTH",
   "TUGRA_YETKI",
   "TALAMUS_YETKI",
   "MULTI_YETKI",
@@ -63,7 +66,7 @@ describe("YAYIN/3 A: TUGRA_* ortam", () => {
     process.env.TALAMUS_KASA = kasa;
     expect(varsayilanKasa()).toBe(resolve(kasa));
     expect(eskiOrtamUyarilari()).toContain(
-      "TALAMUS_KASA is deprecated, use TUGRA_KASA",
+      "TALAMUS_KASA is deprecated, use TUGRA_VAULT",
     );
     let err = "";
     const exit = tugraDoctor(
@@ -71,7 +74,7 @@ describe("YAYIN/3 A: TUGRA_* ortam", () => {
       { kasa, akis, yetki: join(kok, "yetki-yok") },
     );
     expect(exit).toBe(0);
-    expect(err).toMatch(/TALAMUS_KASA is deprecated, use TUGRA_KASA/);
+    expect(err).toMatch(/TALAMUS_KASA is deprecated, use TUGRA_VAULT/);
     expect(err).toMatch(/doctor: OK/);
   });
 
@@ -80,7 +83,7 @@ describe("YAYIN/3 A: TUGRA_* ortam", () => {
     kokler.push(kok);
     const tugra = join(kok, "yeni");
     const eski = join(kok, "eski");
-    process.env.TUGRA_KASA = tugra;
+    process.env.TUGRA_VAULT = tugra;
     process.env.TALAMUS_KASA = eski;
     expect(varsayilanKasa()).toBe(resolve(tugra));
     expect(eskiOrtamUyarilari()).toEqual([]);

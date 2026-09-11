@@ -20,19 +20,19 @@
       "runtimeHint": "npx",
       "environmentVariables": [
         {
-          "name": "TUGRA_KASA",
+          "name": "TUGRA_VAULT",
           "description": "Vault directory holding the markdown facts.",
           "isRequired": false,
           "format": "string"
         },
         {
-          "name": "TUGRA_AKIS",
+          "name": "TUGRA_EVENTS",
           "description": "Directory where audit events are appended.",
           "isRequired": false,
           "format": "string"
         },
         {
-          "name": "TUGRA_YETKI",
+          "name": "TUGRA_AUTH",
           "description": "Authorization store. When set, every agent needs a profile; unset means single-user mode.",
           "isRequired": false,
           "format": "string"

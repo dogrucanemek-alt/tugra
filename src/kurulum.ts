@@ -46,8 +46,8 @@ export function configBlogu(kasa: string, akis: string): string {
           command: "npx",
           args: ["-y", "tugra"],
           env: {
-            TUGRA_KASA: kasa,
-            TUGRA_AKIS: akis,
+            TUGRA_VAULT: kasa,
+            TUGRA_EVENTS: akis,
           },
         },
       },
@@ -169,7 +169,7 @@ export function tugraDoctor(
 
   if (!existsSync(kasa)) {
     io.stderr.write(`MISSING vault: ${kasa}\n`);
-    io.stderr.write("FIX: tugra init <dir>  or set TUGRA_KASA\n");
+    io.stderr.write("FIX: tugra init <dir>  or set TUGRA_VAULT\n");
     bozuk = true;
   } else {
     const hepsi = yukleKasa(kasa);

@@ -215,7 +215,7 @@ export const MCP_OKUMA_AJAN = "mcp-readonly@tugra";
 export const MCP_OKUMA_AJAN_ESKI = "mcp-readonly@multi";
 
 export function varsayilanYetkiKok(): string {
-  const v = ortamIlk("TUGRA_YETKI", "TALAMUS_YETKI", "MULTI_YETKI");
+  const v = ortamIlk("TUGRA_AUTH", "TUGRA_YETKI", "TALAMUS_YETKI", "MULTI_YETKI");
   if (v) return v;
   return join(kokpitKok(), "yetki");
 }
@@ -234,7 +234,7 @@ export function varsayilanYetkiKok(): string {
  */
 export function tekKullaniciModu(yetkiKok?: string): boolean {
   if (yetkiKok !== undefined) return false;
-  if (ortamIlk("TUGRA_YETKI", "TALAMUS_YETKI", "MULTI_YETKI")) return false;
+  if (ortamIlk("TUGRA_AUTH", "TUGRA_YETKI", "TALAMUS_YETKI", "MULTI_YETKI")) return false;
   return !existsSync(varsayilanYetkiKok());
 }
 
