@@ -7,8 +7,8 @@ export function motorKok(): string {
 }
 
 /**
- * TUGRA_* birincil, TALAMUS_* / MULTI_* geri düşüş.
- * Eski adlar silinmez — kokpit ve cron kırılmasın.
+ * English TUGRA_* first, then Turkish TUGRA_*, then TALAMUS_* / MULTI_.
+ * Old names are not removed — cockpit and cron must keep working.
  */
 export function ortamIlk(...adlar: string[]): string | undefined {
   for (const a of adlar) {
@@ -21,13 +21,19 @@ export function ortamIlk(...adlar: string[]): string | undefined {
 /** Yalnız eski ad kuruluysa — doctor yüksek sesle söyler. */
 export function eskiOrtamUyarilari(): string[] {
   const ciftler: [string, string][] = [
-    ["TUGRA_KOKPIT", "TALAMUS_KOKPIT"],
-    ["TUGRA_KASA", "TALAMUS_KASA"],
-    ["TUGRA_AKIS", "TALAMUS_AKIS"],
-    ["TUGRA_KAYIT", "TALAMUS_KAYIT"],
-    ["TUGRA_YETKI", "TALAMUS_YETKI"],
-    ["TUGRA_YETKI", "MULTI_YETKI"],
-    ["TUGRA_TRANSKRIPT", "MULTI_TRANSKRIPT"],
+    ["TUGRA_HOME", "TUGRA_KOKPIT"],
+    ["TUGRA_HOME", "TALAMUS_KOKPIT"],
+    ["TUGRA_VAULT", "TUGRA_KASA"],
+    ["TUGRA_VAULT", "TALAMUS_KASA"],
+    ["TUGRA_EVENTS", "TUGRA_AKIS"],
+    ["TUGRA_EVENTS", "TALAMUS_AKIS"],
+    ["TUGRA_RECORDS", "TUGRA_KAYIT"],
+    ["TUGRA_RECORDS", "TALAMUS_KAYIT"],
+    ["TUGRA_AUTH", "TUGRA_YETKI"],
+    ["TUGRA_AUTH", "TALAMUS_YETKI"],
+    ["TUGRA_AUTH", "MULTI_YETKI"],
+    ["TUGRA_TRANSCRIPTS", "TUGRA_TRANSKRIPT"],
+    ["TUGRA_TRANSCRIPTS", "MULTI_TRANSKRIPT"],
   ];
   const out: string[] = [];
   for (const [yeni, eski] of ciftler) {
@@ -38,28 +44,28 @@ export function eskiOrtamUyarilari(): string[] {
   return out;
 }
 
-/** TUGRA_KOKPIT → TALAMUS_KOKPIT → motorun bir üstü */
+/** TUGRA_HOME → TUGRA_KOKPIT → TALAMUS_KOKPIT → parent of the motor */
 export function kokpitKok(): string {
-  const v = ortamIlk("TUGRA_KOKPIT", "TALAMUS_KOKPIT");
+  const v = ortamIlk("TUGRA_HOME", "TUGRA_KOKPIT", "TALAMUS_KOKPIT");
   if (v) return resolve(v);
   return resolve(motorKok(), "..");
 }
 
-/** TUGRA_KASA → TALAMUS_KASA → Kokpit/kasa */
+/** TUGRA_VAULT → TUGRA_KASA → TALAMUS_KASA → cockpit/kasa */
 export function varsayilanKasa(): string {
-  const v = ortamIlk("TUGRA_KASA", "TALAMUS_KASA");
+  const v = ortamIlk("TUGRA_VAULT", "TUGRA_KASA", "TALAMUS_KASA");
   if (v) return resolve(v);
   return resolve(kokpitKok(), "kasa");
 }
 
 export function varsayilanAkis(): string {
-  const v = ortamIlk("TUGRA_AKIS", "TALAMUS_AKIS");
+  const v = ortamIlk("TUGRA_EVENTS", "TUGRA_AKIS", "TALAMUS_AKIS");
   if (v) return resolve(v);
   return resolve(kokpitKok(), "akis");
 }
 
 export function varsayilanKayit(): string {
-  const v = ortamIlk("TUGRA_KAYIT", "TALAMUS_KAYIT");
+  const v = ortamIlk("TUGRA_RECORDS", "TUGRA_KAYIT", "TALAMUS_KAYIT");
   if (v) return resolve(v);
   return resolve(kokpitKok(), "kayit");
 }

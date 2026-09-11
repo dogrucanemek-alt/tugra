@@ -447,7 +447,7 @@ function main(): void {
   }
   serveStdio(() => createTugraMcp());
   console.error(
-    `tugra MCP: kasa=${varsayilanKasa()} akis=${varsayilanAkis()}`,
+    `tugra MCP: vault=${varsayilanKasa()} events=${varsayilanAkis()}`,
   );
 }
 

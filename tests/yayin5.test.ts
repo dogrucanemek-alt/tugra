@@ -19,6 +19,10 @@ afterEach(() => {
 });
 
 const ORTAM = [
+  "TUGRA_VAULT",
+  "TUGRA_EVENTS",
+  "TUGRA_AUTH",
+  "TUGRA_HOME",
   "TUGRA_KASA",
   "TUGRA_AKIS",
   "TUGRA_YETKI",
@@ -96,6 +100,7 @@ describe("YAYIN/5 A: README tek kullanıcı", () => {
     const bloklar = readmeIstemciEnv(ham);
     expect(bloklar.length).toBeGreaterThanOrEqual(5);
     for (const env of bloklar) {
+      expect(env.TUGRA_AUTH, JSON.stringify(env)).toBeUndefined();
       expect(env.TUGRA_YETKI, JSON.stringify(env)).toBeUndefined();
       const yedek = ortamTemiz();
       const kok = tempKok();
@@ -105,8 +110,8 @@ describe("YAYIN/5 A: README tek kullanıcı", () => {
       mkdirSync(akis, { recursive: true });
       kasaYaz(kasa, "Shipping takes 30 days");
       process.env.TUGRA_KOKPIT = kok;
-      if ("TUGRA_KASA" in env) process.env.TUGRA_KASA = kasa;
-      if ("TUGRA_AKIS" in env) process.env.TUGRA_AKIS = akis;
+      if ("TUGRA_VAULT" in env || "TUGRA_KASA" in env) process.env.TUGRA_VAULT = kasa;
+      if ("TUGRA_EVENTS" in env || "TUGRA_AKIS" in env) process.env.TUGRA_EVENTS = akis;
       try {
         const c = await tugraArac(
           "fact_search",
@@ -140,9 +145,10 @@ describe("YAYIN/5 A: README tek kullanıcı", () => {
     const j = JSON.parse(configBlogu("/kasa", "/akis")) as {
       mcpServers: { tugra: { env: Record<string, string> } };
     };
+    expect(j.mcpServers.tugra.env.TUGRA_AUTH).toBeUndefined();
     expect(j.mcpServers.tugra.env.TUGRA_YETKI).toBeUndefined();
-    expect(j.mcpServers.tugra.env.TUGRA_KASA).toBe("/kasa");
-    expect(j.mcpServers.tugra.env.TUGRA_AKIS).toBe("/akis");
+    expect(j.mcpServers.tugra.env.TUGRA_VAULT).toBe("/kasa");
+    expect(j.mcpServers.tugra.env.TUGRA_EVENTS).toBe("/akis");
   });
 });
 
