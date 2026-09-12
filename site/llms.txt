@@ -31,6 +31,9 @@
   invention on a topic with no evidence. Uses the on-disk frontmatter field names:
   https://tugra-ai.com/memory-provenance-for-agents
 - Home: https://tugra-ai.com
+- Dated comparison with Mem0, Letta Code, Graphiti, LangMem, Cognee, the official MCP memory server and
+  claude-mem, read 12 September 2026; every cell separates the vendor's documents from code we found,
+  and it lists where they are ahead: https://tugra-ai.com/compare
 - Source and format: https://github.com/dogrucanemek-alt/tugra
 - The published package name is `tugra`. On a TTY, `npx tugra` prints help.
 

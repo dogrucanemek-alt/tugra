@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tugra vs other agent memory servers, compared with dates</title>
+  <meta name="description" content="How Tugra compares to Mem0, Letta Code, Graphiti, LangMem, Cognee, the official MCP memory server and claude-mem on required sources, verification dates and shelf life, stale records, boundary records, secret refusal before write, per-agent permissions, running without a network and human-readable files. Every cell separates what the documentation says from what we found in the code. Read 12 September 2026, including the places where they are ahead of us.">
+  <link rel="canonical" href="https://tugra-ai.com/compare">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Tugra">
+  <meta property="og:title" content="Tugra vs other agent memory servers, compared with dates">
+  <meta property="og:description" content="Docs and code kept apart in every cell. Stars, commits and capability columns all read 12 September 2026. Including the places where they are ahead of us.">
+  <meta property="og:url" content="https://tugra-ai.com/compare">
+  <meta property="og:image" content="https://tugra-ai.com/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tugra-ai.com/og.png">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body class="wide">
+  <header class="mast">
+    <a href="/" class="domain">tugra-ai.com</a>
+  </header>
+
+  <main>
+    <div class="prose">
+      <p class="kicker">Compared, with dates</p>
+      <h1>How Tugra compares</h1>
+      <p class="hint">Stars, commits and capability columns all read 12 September 2026 · re-measurable with the commands at the end.</p>
+      <p>Including the places where the other projects are ahead of us. Every cell says whether it comes from the project's own documents or from a function we found in its code, because those are two different kinds of evidence, and a comparison written by a vendor is worth exactly as much as its verifiability.</p>
+
+      <p class="kicker">Read this first</p>
+      <p>Tugra is the smallest project on this page: 0 GitHub stars against claude-mem's 93,727 and Mem0's 65,183. It has no embeddings, no graph and no server; it is Markdown files in a directory behind four MCP tools. If you want a memory that fills itself and finds things by meaning, pick one of the others. Keep reading only if what you need is a memory where every record names its source, carries a verification date and a shelf life, and refuses to invent on a topic it has no evidence for.</p>
+      <p><strong>How to read a cell.</strong> <em>Docs</em> is what the project's documentation says. <em>Code</em> names the function we found producing that behaviour at the pinned commit, or says <em>not found</em> when we did not find one in the files we read. Not found is not proof of absence. Nothing was executed; this is a static reading of open code and public documents. Tugra's own row is held to the same notation.</p>
+
+      <p class="kicker">The table</p>
+      <p>Star counts, licenses and last-commit dates were read from the GitHub API on 12 September 2026. The last-commit date is the committer date of the newest commit on the default branch. Capability columns were read the same day from each project's documentation and from the source files linked under the table. If we got something wrong about your project, write to us and we will correct the page and note the correction.</p>
+    </div>
+
+    <div class="tblwrap">
+    <table class="compare">
+      <thead>
+        <tr>
+          <th>Project</th><th>Stars</th><th>Last commit</th><th>License</th>
+          <th>Source required on every record</th>
+          <th>Verification date and shelf life</th>
+          <th>Stale records out of the default result</th>
+          <th>Boundary record that forbids invention</th>
+          <th>Secret pattern refused before write</th>
+          <th>Per-agent permission profile</th>
+          <th>Runs with no network</th>
+          <th>Human-readable record file</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="us">
+          <td data-label="Project">Tugra</td><td data-label="Stars">0</td><td data-label="Last commit">2026-09-12</td><td data-label="License">Apache-2.0</td>
+          <td class="y" data-label="Source required on every record"><b>Yes</b><small>Code: <code>dogrula.ts</code> requires the <code>source</code> list, and each entry needs a pointer and a <code>YYYY-MM-DD</code> date. A fact, decision or boundary without its own evidence fails gate K1 and is demoted to an observation.</small></td>
+          <td class="y" data-label="Verification date and shelf life"><b>Yes</b><small>Frontmatter fields <code>verified</code> and <code>shelf_life</code>; a malformed shelf life is refused (<code>sema.ts</code>). Search ranks fresh above stale (<code>arama.ts</code>).</small></td>
+          <td class="q" data-label="Stale records out of the default result"><b>Partly</b><small>Retired and rotten records are out of the default set. A stale record stays in, ranked below fresh ones and labelled stale with its age (<code>arama.ts</code>).</small></td>
+          <td class="y" data-label="Boundary record that forbids invention"><b>Yes</b><small>Boundary is a record type (<code>sinir</code>, <code>sema.ts</code>). A proposed boundary is always quarantined until a human accepts it, whatever the proposing agent's trust (<code>arama.ts</code>).</small></td>
+          <td class="y" data-label="Secret pattern refused before write"><b>Yes</b><small>Code: <code>olguOner()</code> runs <code>sirDeseniBul()</code> over title, body and sources before anything is written; on a match nothing is written, not even the permission log, and only the pattern name is returned, never the match (<code>arama.ts</code>, <code>sir.ts</code>).</small></td>
+          <td class="y" data-label="Per-agent permission profile"><b>Yes, when the store exists</b><small>Code: <code>yetki.ts</code> keeps a record per agent with axes for touch, outbound, autonomy, persistence and spend ceiling, levels A0 to A5. Without a permission directory the vault runs in single-user mode and everyone can search.</small></td>
+          <td class="y" data-label="Runs with no network"><b>Yes, by construction</b><small>Stdio transport (<code>serveStdio</code>, <code>mcp.ts</code>); the published modules import no <code>http</code>, <code>net</code>, <code>dns</code> or <code>fetch</code>; dependencies are the MCP SDK, <code>yaml</code> and <code>zod</code>. <code>event_report</code> appends a local line. Not measured with packet capture.</small></td>
+          <td class="y" data-label="Human-readable record file"><b>Yes</b><small>One Markdown file per record with YAML frontmatter (<code>dosya.ts</code>).</small></td>
+        </tr>
+        <tr>
+          <td data-label="Project"><a href="https://github.com/mem0ai/mem0">Mem0 OSS</a></td><td data-label="Stars">65,183</td><td data-label="Last commit">2026-09-11</td><td data-label="License">Apache-2.0</td>
+          <td class="n" data-label="Source required on every record"><b>No</b><small>Docs: metadata and scopes. Code: <code>_create_memory()</code> accepts a payload with no source (<code>memory/main.py</code>).</small></td>
+          <td class="q" data-label="Verification date and shelf life"><b>Expiry only</b><small>Code: <code>expiration_date</code> through <code>_normalize_expiration_date()</code>; no verification date.</small></td>
+          <td class="y" data-label="Stale records out of the default result"><b>Yes, for expired</b><small>Code: <code>search()</code> and <code>get_all()</code> take <code>show_expired=False</code>; <code>_payload_is_expired()</code> filters.</small></td>
+          <td class="q" data-label="Boundary record that forbids invention"><b>No</b><small><code>custom_instructions</code> exists; no dedicated boundary record.</small></td>
+          <td class="n" data-label="Secret pattern refused before write"><b>No</b><small><code>_is_sensitive_field()</code> is for telemetry and config; no pattern refusal on memory writes found.</small></td>
+          <td class="q" data-label="Per-agent permission profile"><b>Scopes</b><small>user, agent and run scopes via <code>_build_filters_and_metadata()</code>; a scope, not an authorisation profile.</small></td>
+          <td class="n" data-label="Runs with no network"><b>No</b><small>Model and embedding providers, telemetry on by default (<code>telemetry.py</code>).</small></td>
+          <td class="n" data-label="Human-readable record file"><b>No</b><small>Vector store plus SQLite history.</small></td>
+        </tr>
+        <tr>
+          <td data-label="Project"><a href="https://github.com/letta-ai/letta-code">Letta Code</a> <small>the older <a href="https://github.com/letta-ai/letta">letta-ai/letta</a> has 24,714 stars, last commit 2026-09-10, and its README points here</small></td><td data-label="Stars">3,314</td><td data-label="Last commit">2026-09-12</td><td data-label="License">Apache-2.0</td>
+          <td class="n" data-label="Source required on every record"><b>No</b><small>Code: <code>validateMemoryFileFrontmatter()</code> v2 requires <code>name</code> and <code>description</code>; no source field (<code>memory-frontmatter.ts</code>).</small></td>
+          <td class="n" data-label="Verification date and shelf life"><b>No</b><small>Not found in the frontmatter validation.</small></td>
+          <td class="q" data-label="Stale records out of the default result"><b>Not found</b></td>
+          <td class="q" data-label="Boundary record that forbids invention"><b>No</b><small><code>read_only</code> in the legacy format; no topic-ban record.</small></td>
+          <td class="q" data-label="Secret pattern refused before write"><b>Not found</b><small>Docs: secret values are hidden from context; no write-time pattern refusal found.</small></td>
+          <td class="q" data-label="Per-agent permission profile"><b>Partly</b><small>Code: <code>createMemoryConfinementLauncherWithAvailability()</code> confines the memory root of memory sub-agents; permission modes in docs.</small></td>
+          <td class="q" data-label="Runs with no network"><b>Partly</b><small>Local file paths exist; zero network across the whole harness is not stated.</small></td>
+          <td class="y" data-label="Human-readable record file"><b>Yes</b><small>Git-tracked Markdown memory (<code>validateMemoryTreeConstraints()</code> processes <code>.md</code>).</small></td>
+        </tr>
+        <tr>
+          <td data-label="Project"><a href="https://github.com/getzep/graphiti">Graphiti</a> <small>Zep's open layer; the hosted engine is separate</small></td><td data-label="Stars">30,831</td><td data-label="Last commit">2026-09-11</td><td data-label="License">Apache-2.0</td>
+          <td class="q" data-label="Source required on every record"><b>Partly</b><small>Code: <code>EpisodicNode.source_description</code> is required; <code>EntityEdge.episodes=[]</code> is allowed, so not every record (<code>nodes.py</code>, <code>edges.py</code>).</small></td>
+          <td class="q" data-label="Verification date and shelf life"><b>Bi-temporal</b><small><code>valid_at</code>, <code>invalid_at</code>, <code>expired_at</code>; not a verification date or a shelf life.</small></td>
+          <td class="q" data-label="Stale records out of the default result"><b>Not by default</b><small><code>SearchFilters</code> time filters default to <code>None</code>; current-only results are not automatic.</small></td>
+          <td class="q" data-label="Boundary record that forbids invention"><b>No</b><small>Custom ontology; no topic-ban semantics.</small></td>
+          <td class="q" data-label="Secret pattern refused before write"><b>Not found</b></td>
+          <td class="q" data-label="Per-agent permission profile"><b>Scopes</b><small><code>group_ids</code> is a query scope, not an authenticated agent ACL.</small></td>
+          <td class="n" data-label="Runs with no network"><b>No</b><small><code>Graphiti.__init__()</code> calls providers and telemetry; local LLM endpoints are supported.</small></td>
+          <td class="n" data-label="Human-readable record file"><b>No</b><small>Graph database (<code>Node.save()</code>).</small></td>
+        </tr>
+        <tr>
+          <td data-label="Project"><a href="https://github.com/langchain-ai/langmem">LangMem</a></td><td data-label="Stars">1,660</td><td data-label="Last commit">2026-09-09</td><td data-label="License">MIT</td>
+          <td class="n" data-label="Source required on every record"><b>No</b><small><code>create_manage_memory_tool()</code> works with default content; the schema is customisable (<code>knowledge/tools.py</code>).</small></td>
+          <td class="q" data-label="Verification date and shelf life"><b>Backend's job</b><small>No TTL on <code>store.put()</code> in LangMem itself.</small></td>
+          <td class="q" data-label="Stale records out of the default result"><b>No</b><small>Search delegates to the store; no staleness filter of its own.</small></td>
+          <td class="q" data-label="Boundary record that forbids invention"><b>No</b><small>Custom schema is possible; nothing built in.</small></td>
+          <td class="q" data-label="Secret pattern refused before write"><b>Not found</b><small>Not in the <code>manage_memory()</code> write path.</small></td>
+          <td class="q" data-label="Per-agent permission profile"><b>Per tool</b><small>Namespaces and <code>actions_permitted</code> (create, update, delete) per tool; not an identity-based ACL.</small></td>
+          <td class="q" data-label="Runs with no network"><b>Backend-dependent</b><small>Examples use remote models.</small></td>
+          <td class="q" data-label="Human-readable record file"><b>No</b><small>In-memory or database store (<code>BaseStore.put()</code>).</small></td>
+        </tr>
+        <tr>
+          <td data-label="Project"><a href="https://github.com/topoteretes/cognee">Cognee</a></td><td data-label="Stars">30,656</td><td data-label="Last commit">2026-09-09</td><td data-label="License">Apache-2.0</td>
+          <td class="q" data-label="Source required on every record"><b>Partly</b><small><code>ProvenanceEntry.source_document</code> defaults to an empty string (<code>ProvenanceEntry.py</code>).</small></td>
+          <td class="q" data-label="Verification date and shelf life"><b>Optional</b><small><code>valid_from</code> and <code>valid_until</code> are optional; no mandatory verification date.</small></td>
+          <td class="q" data-label="Stale records out of the default result"><b>Not verified</b><small>A link from <code>valid_until</code> to default search exclusion was not found.</small></td>
+          <td class="q" data-label="Boundary record that forbids invention"><b>No</b></td>
+          <td class="q" data-label="Secret pattern refused before write"><b>No</b><small><code>sanitize_value()</code> truncates and normalises; no pattern refusal.</small></td>
+          <td class="y" data-label="Per-agent permission profile"><b>Yes, dataset ACL</b><small><code>check_permission_on_dataset()</code>; depends on identity and permission configuration.</small></td>
+          <td class="n" data-label="Runs with no network"><b>No</b><small>Default provider is OpenAI; local Ollama is possible; zero network not shown.</small></td>
+          <td class="n" data-label="Human-readable record file"><b>No</b><small>Graph, vector and relational databases.</small></td>
+        </tr>
+        <tr>
+          <td data-label="Project"><a href="https://github.com/modelcontextprotocol/servers/tree/main/src/memory">Official MCP memory server</a> <small>numbers are the whole monorepo</small></td><td data-label="Stars">90,273</td><td data-label="Last commit">2026-09-03</td><td data-label="License">MIT in its README; the repository root says Apache-2.0 with remaining MIT contributions</td>
+          <td class="n" data-label="Source required on every record"><b>No</b><small><code>EntitySchema</code> is name, type and observations only (<code>src/memory/index.ts</code>).</small></td>
+          <td class="n" data-label="Verification date and shelf life"><b>No</b></td>
+          <td class="n" data-label="Stale records out of the default result"><b>No</b><small><code>searchNodes()</code> matches text and ignores age.</small></td>
+          <td class="n" data-label="Boundary record that forbids invention"><b>No</b><small>Free-form observations.</small></td>
+          <td class="n" data-label="Secret pattern refused before write"><b>No</b><small><code>createEntities()</code> and <code>addObservations()</code> go to <code>saveGraph()</code> without a filter.</small></td>
+          <td class="n" data-label="Per-agent permission profile"><b>No</b><small>One graph manager.</small></td>
+          <td class="y" data-label="Runs with no network"><b>Yes, in its own path</b><small><code>StdioServerTransport</code> and <code>fs</code>; no network call seen in the main path. Install and dependencies not tested.</small></td>
+          <td class="y" data-label="Human-readable record file"><b>Yes</b><small><code>memory.jsonl</code>.</small></td>
+        </tr>
+        <tr>
+          <td data-label="Project"><a href="https://github.com/thedotmack/claude-mem">claude-mem</a></td><td data-label="Stars">93,727</td><td data-label="Last commit">2026-09-12</td><td data-label="License">Apache-2.0</td>
+          <td class="q" data-label="Source required on every record"><b>Session only</b><small>Observations are bound to a session (<code>SessionStore.initializeSchema()</code>); no independent source field.</small></td>
+          <td class="n" data-label="Verification date and shelf life"><b>No</b><small><code>created_at</code> only.</small></td>
+          <td class="q" data-label="Stale records out of the default result"><b>No</b><small>Optional date filter in <code>SessionSearch.searchObservations()</code>; no default exclusion.</small></td>
+          <td class="q" data-label="Boundary record that forbids invention"><b>No</b></td>
+          <td class="q" data-label="Secret pattern refused before write"><b>Opt-in tag</b><small><code>&lt;private&gt;</code> tags are removed by <code>stripTags()</code>; you mark it, the tool does not detect it.</small></td>
+          <td class="q" data-label="Per-agent permission profile"><b>Filters</b><small>Platform and project filters; per-agent authorisation not stated.</small></td>
+          <td class="q" data-label="Runs with no network"><b>Partly</b><small>Local worker and SQLite; hosted options in some integrations; zero network not stated.</small></td>
+          <td class="n" data-label="Human-readable record file"><b>No</b><small>SQLite (<code>bun:sqlite</code>).</small></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="prose">
+      <p class="kicker">Files and documents read, 12 September 2026</p>
+      <ul class="sources">
+        <li><strong>Tugra</strong> at <a href="https://github.com/dogrucanemek-alt/tugra/tree/4c20ce9">4c20ce9</a>: <code>src/dogrula.ts</code>, <code>src/sema.ts</code>, <code>src/arama.ts</code>, <code>src/sir.ts</code>, <code>src/yetki.ts</code>, <code>src/mcp.ts</code>, <code>src/dosya.ts</code>, <code>package.json</code>.</li>
+        <li><strong>Mem0</strong> at <a href="https://github.com/mem0ai/mem0/tree/c7ee362">c7ee362</a>: <a href="https://github.com/mem0ai/mem0/blob/c7ee362/mem0/memory/main.py">memory/main.py</a>, <a href="https://github.com/mem0ai/mem0/blob/c7ee362/mem0/memory/telemetry.py">telemetry.py</a>, README.</li>
+        <li><strong>Letta Code</strong> at <a href="https://github.com/letta-ai/letta-code/tree/9a40d27">9a40d27</a>: <a href="https://github.com/letta-ai/letta-code/blob/9a40d27/src/memory-frontmatter.ts">memory-frontmatter.ts</a>, <a href="https://github.com/letta-ai/letta-code/blob/9a40d27/src/memory-constraints.ts">memory-constraints.ts</a>, <a href="https://github.com/letta-ai/letta-code/blob/9a40d27/src/permissions/memory-confinement-launcher.ts">memory-confinement-launcher.ts</a>, README.</li>
+        <li><strong>Graphiti</strong> at <a href="https://github.com/getzep/graphiti/tree/c035afb">c035afb</a>: <a href="https://github.com/getzep/graphiti/blob/c035afb/graphiti_core/nodes.py">nodes.py</a>, <a href="https://github.com/getzep/graphiti/blob/c035afb/graphiti_core/edges.py">edges.py</a>, <a href="https://github.com/getzep/graphiti/blob/c035afb/graphiti_core/graphiti.py">graphiti.py</a>, <a href="https://github.com/getzep/graphiti/blob/c035afb/graphiti_core/search/search_filters.py">search_filters.py</a>, README.</li>
+        <li><strong>LangMem</strong> at <a href="https://github.com/langchain-ai/langmem/tree/9d033b4">9d033b4</a>: <a href="https://github.com/langchain-ai/langmem/blob/9d033b4/src/langmem/knowledge/tools.py">knowledge/tools.py</a>, README.</li>
+        <li><strong>Cognee</strong> at <a href="https://github.com/topoteretes/cognee/tree/c0d18c8">c0d18c8</a>: <a href="https://github.com/topoteretes/cognee/blob/c0d18c8/cognee/modules/provenance/models/ProvenanceEntry.py">ProvenanceEntry.py</a>, <a href="https://github.com/topoteretes/cognee/blob/c0d18c8/cognee/modules/agent_memory/sanitization.py">sanitization.py</a>, <a href="https://github.com/topoteretes/cognee/blob/c0d18c8/cognee/modules/users/permissions/methods/check_permission_on_dataset.py">check_permission_on_dataset.py</a>; docs <a href="https://docs.cognee.ai/core-concepts/multi-user-mode/permissions-system/acl">ACL</a>.</li>
+        <li><strong>Official MCP memory server</strong> at <a href="https://github.com/modelcontextprotocol/servers/tree/d73f99e/src/memory">d73f99e</a>: <a href="https://github.com/modelcontextprotocol/servers/blob/d73f99e/src/memory/index.ts">src/memory/index.ts</a>, <a href="https://github.com/modelcontextprotocol/servers/blob/d73f99e/src/memory/README.md">memory README</a>, <a href="https://github.com/modelcontextprotocol/servers/blob/d73f99e/LICENSE">root LICENSE</a>.</li>
+        <li><strong>claude-mem</strong> at <a href="https://github.com/thedotmack/claude-mem/tree/b11034b">b11034b</a>: <a href="https://github.com/thedotmack/claude-mem/blob/b11034b/src/services/sqlite/SessionStore.ts">SessionStore.ts</a>, <a href="https://github.com/thedotmack/claude-mem/blob/b11034b/src/services/sqlite/SessionSearch.ts">SessionSearch.ts</a>, <a href="https://github.com/thedotmack/claude-mem/blob/b11034b/src/utils/tag-stripping.ts">tag-stripping.ts</a>; docs <a href="https://docs.claude-mem.ai/usage/private-tags">private tags</a>.</li>
+      </ul>
+
+      <p class="kicker">Where they are ahead of us</p>
+      <ul class="links">
+        <li><strong>Retrieval.</strong> Mem0 combines semantic, BM25 and entity search; Graphiti walks a temporal graph with three retrieval modes; Cognee offers graph, vector and relational storage. Tugra's search is a token score, then freshness, then confidence. No embeddings, no graph.</li>
+        <li><strong>Automatic extraction.</strong> Mem0, claude-mem and Letta write memory for you as you work. Tugra accepts only a proposal that names its source. That is friction, and it is deliberate, and it is still friction.</li>
+        <li><strong>Adoption.</strong> 0 stars against 93,727, 65,183 and 30,831. No external contributors and no external production deployment we know of.</li>
+        <li><strong>Scale and multi-user.</strong> Tugra is files in a directory. There is no index server and no multi-user service; Cognee's dataset ACL model is broader than our per-agent profile.</li>
+        <li><strong>Bi-temporal modelling.</strong> Graphiti records when a fact was true and when the system learned it. Tugra records when a fact was last verified and how long that holds, which is a narrower question.</li>
+        <li><strong>No merge, no delete, no conflict detection.</strong> Two writers, two files. Retirement exists; erasure does not. Contradictory facts can sit side by side until a human says otherwise (README).</li>
+      </ul>
+
+      <p class="kicker">Where we are different</p>
+      <ul class="links">
+        <li><strong>Source is a gate, not a field.</strong> Gate K1 demotes an unsourced fact to an observation. Elsewhere on this page a source is optional metadata or a session id.</li>
+        <li><strong>Verification date and shelf life on disk.</strong> <code>verified</code> and <code>shelf_life</code> are frontmatter fields you can read with any editor. Mem0's expiry is the nearest thing; Graphiti's bi-temporal fields answer a different question.</li>
+        <li><strong>A boundary record.</strong> A topic with no evidence gets a record that says so, and that record forbids invention. We did not find an equivalent record type in the other seven.</li>
+        <li><strong>Secret refused before write.</strong> The only project on this page where we found a write-time pattern refusal. claude-mem's <code>&lt;private&gt;</code> tag is the nearest, and you have to remember to use it.</li>
+        <li><strong>No network by construction.</strong> Stdio, no HTTP import, three dependencies. The official MCP memory server shares this property.</li>
+        <li><strong>Human-readable.</strong> One Markdown file per record; Letta's Markdown memory and the official server's JSONL share this too.</li>
+      </ul>
+
+      <p class="kicker">Not in the table, and why</p>
+      <ul class="links">
+        <li><strong>Microsoft "Memoria".</strong> We found no Microsoft product or repository of that name; a Copilot Studio page with that title is a localisation of its Memory feature.</li>
+        <li><strong>Zep Cloud.</strong> Graphiti's README separates Zep's proprietary engine from the open code. We score only what we can read.</li>
+        <li><strong>The older letta-ai/letta.</strong> Its README routes current code to letta-code. Its 24,714 stars were not added to letta-code's.</li>
+      </ul>
+
+      <p class="kicker">Verify this page yourself</p>
+      <p>Do not take the numbers on trust. They take about a minute to gather.</p>
+      <pre># Stars, license and newest commit on the default branch
+for r in dogrucanemek-alt/tugra mem0ai/mem0 letta-ai/letta-code getzep/graphiti \
+         langchain-ai/langmem topoteretes/cognee modelcontextprotocol/servers thedotmack/claude-mem; do
+  gh api "repos/$r" --jq '"\(.full_name)  stars \(.stargazers_count)  \(.license.spdx_id)"'
+  gh api "repos/$r/commits?per_page=1" --jq '.[0].commit.committer.date'
+done
+
+# Read the same file we read, at the same commit
+gh api -H "Accept: application/vnd.github.raw+json" \
+  "repos/mem0ai/mem0/contents/mem0/memory/main.py?ref=c7ee362" | grep -n "show_expired"
+
+# Try the refusal yourself: propose a fact with no source, then one with a key in it
+npx tugra init
+npx tugra</pre>
+      <p>The second command, piped, is the MCP server. Point any MCP client at it and call <code>fact_propose</code> without a source: the answer names gate K1. Put a private key in the body: the answer names the pattern and writes nothing.</p>
+    </div>
+  </main>
+
+  <footer>
+    <p class="foot-line">TUGRA · Proven memory for AI agents · © 2026 ·
+      Local-first. Sourced. Auditable.</p>
+    <p class="foot-links">
+      Found an error on this page, including one that favours us? <a href="mailto:e.dogru@tugra-ai.com">e.dogru@tugra-ai.com</a>. We will correct it and note the correction.
+    </p>
+    <p class="foot-links">
+      <a href="/">Home</a> ·
+      <a href="/memory-provenance-for-agents">Three questions</a> ·
+      <a href="https://github.com/dogrucanemek-alt/tugra">GitHub</a> ·
+      <a href="mailto:e.dogru@tugra-ai.com">Contact</a>
+    </p>
+    <p class="domain">a Verax Teknoloji product · tugra-ai.com</p>
+  </footer>
+</body>
+</html>
