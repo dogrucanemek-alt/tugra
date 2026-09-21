@@ -1,6 +1,6 @@
 # tugra
 
-Part of [VERAX](https://verax-ai.com), by VERAX Teknoloji. Sister projects: [Conarium](https://github.com/dogrucanemek-alt/conarium) · [Cedulon](https://github.com/dogrucanemek-alt/cedulon).
+Part of [VERAX](https://verax-ai.com), by VERAX Teknoloji. Start with the VERAX body: [verax-ai/verax](https://github.com/verax-ai/verax). Sister projects: [Conarium](https://github.com/dogrucanemek-alt/conarium) · [Cedulon](https://github.com/dogrucanemek-alt/cedulon).
 
 ```bash
 npx tugra init
