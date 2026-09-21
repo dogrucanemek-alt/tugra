@@ -1,39 +1,30 @@
+/* VERAX palette: black ground, blue accent (same values as verax-ai.com).
+   "paper" is the optional light theme behind the toggle, kept in the same blue family. */
 :root {
-  --ink: #1a1612;
-  --paper: #f4efe4;
-  --rule: #c9c0ae;
-  --accent: #8b1e1e;
+  color-scheme: dark;
+  --ink: #e9f1f7;
+  --paper: #05060a;
+  --rule: #2a3a55;
+  --accent: #5895ff;
+  --glow: rgba(52, 121, 255, 0.16);
   --mono: "Cascadia Mono", "IBM Plex Mono", "ui-monospace", Consolas, monospace;
   --serif: "Iowan Old Style", Palatino, "Palatino Linotype", "Times New Roman", serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="paper"]) {
-    --ink: #f0ead8;
-    --paper: #161310;
-    --rule: #3d382e;
-    --accent: #e07a6a;
-  }
-}
-
-:root[data-theme="ink"] {
-  --ink: #f0ead8;
-  --paper: #161310;
-  --rule: #3d382e;
-  --accent: #e07a6a;
-}
-
 :root[data-theme="paper"] {
-  --ink: #1a1612;
-  --paper: #f4efe4;
-  --rule: #c9c0ae;
-  --accent: #8b1e1e;
+  color-scheme: light;
+  --ink: #0b1220;
+  --paper: #f3f6fb;
+  --rule: #cfd8e6;
+  --accent: #2456c7;
+  --glow: rgba(52, 121, 255, 0.10);
 }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; overflow-x: hidden; }
 body {
-  background: var(--paper);
+  /* Glow anchored in rem, not %, so page length does not push it off screen. */
+  background: radial-gradient(60rem 36rem at 88% -6rem, var(--glow), transparent 70%), var(--paper);
   color: var(--ink);
   font-family: var(--serif);
   line-height: 1.5;

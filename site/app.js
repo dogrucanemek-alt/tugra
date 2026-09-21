@@ -10,7 +10,7 @@ function apply(theme) {
 
 btn?.addEventListener("click", () => {
   const now = root.getAttribute("data-theme");
-  const next = now === "ink" ? "paper" : now === "paper" ? null : "ink";
+  const next = now === "paper" ? null : "paper";
   apply(next);
 });
 
