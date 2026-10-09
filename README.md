@@ -2,7 +2,7 @@
 
 Part of [VERAX](https://verax-ai.com), by VERAX Teknoloji. Start with the VERAX body: [verax-ai/verax](https://github.com/verax-ai/verax). Sister projects: [Conarium](https://github.com/dogrucanemek-alt/conarium) · [Cedulon](https://github.com/dogrucanemek-alt/cedulon).
 
-Listed on: [npm](https://www.npmjs.com/package/tugra) · [Glama](https://glama.ai/mcp/servers/dogrucanemek-alt/tugra) · [MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=com.tugra-ai/tugra)
+Listed on: [npm](https://www.npmjs.com/package/tugra) · [Glama](https://glama.ai/mcp/servers/dogrucanemek-alt/tugra) · [MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=com.tugra-ai/tugra) · [MCP Market](https://mcpmarket.com/server/tugra) · [LobeHub](https://lobehub.com/mcp/dogrucanemek-alt-tugra)
 
 ```bash
 npx tugra init
