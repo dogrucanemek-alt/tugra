@@ -515,7 +515,7 @@ export function olguOner(
       dunya,
       konu,
       baslik: taslak.baslik.slice(0, 120),
-      sahip: "patron",
+      sahip: "owner",
       yazan: ajan,
       tarih: new Date().toISOString(),
       guven: 0.5,
