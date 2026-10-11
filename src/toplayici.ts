@@ -149,7 +149,7 @@ export function kemiklesmeTaslagi(
     dunya: kapsam === "dunya" ? dunya : null,
     konu,
     baslik: baslik || bitti.is,
-    sahip: "patron",
+    sahip: "owner",
     yazan: bitti.ajan,
     tarih: bitti.ts,
     guven: typeof bitti.guven === "number" ? bitti.guven : 0.6,
