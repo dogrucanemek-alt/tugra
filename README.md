@@ -4,6 +4,8 @@ Part of [VERAX](https://verax-ai.com), by VERAX Teknoloji. Start with the VERAX 
 
 Listed on: [npm](https://www.npmjs.com/package/tugra) · [Glama](https://glama.ai/mcp/servers/dogrucanemek-alt/tugra) · [MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=com.tugra-ai/tugra) · [MCP Market](https://mcpmarket.com/server/tugra) · [LobeHub](https://lobehub.com/mcp/dogrucanemek-alt-tugra)
 
+[![agora](https://openforallofus.com/badge/com.tugra-ai/tugra.svg)](https://openforallofus.com/tools/com.tugra-ai/tugra)
+
 ```bash
 npx tugra init
 ```
