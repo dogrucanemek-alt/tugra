@@ -315,15 +315,17 @@ export function createTugraMcp(secenek: TugraMcpSecenek = {}): McpServer {
     "fact_search",
     {
       description:
-        "Search stored facts. Retired and rotten facts are omitted unless archive is true. Rank: token score, then freshness, then confidence. Boundary facts add a no-claim warning. Authorization required.",
+        "Find facts in the vault by text when you do not have a uid. Open one result in full with fact_read; add a new fact with fact_propose. Results are ranked by token score, then freshness, then confidence. Retired and rotten facts are left out unless archive is true; drafts from fact_propose and quarantined facts are never returned. When the query touches a topic that has an active boundary fact, the answer carries a warning that claims on that topic are forbidden: do not make them. The agent needs read authorization for the scope; without it the answer has no results and an unauthorized: warning with the request id. Does not change facts; it may rebuild the search index when that is stale.",
       inputSchema: z.object({
-        query: z.string().describe("search text"),
+        query: z.string().describe("words matched against each fact's title, topic, claim line and type"),
         scope: z
           .string()
           .optional()
-          .describe("evrensel | kurum | dunya (stored scope values)"),
-        world: z.string().optional().describe("world id when scope is dunya"),
-        limit: z.number().int().min(1).max(50).optional(),
+          .describe(
+            "only facts stored with this scope: evrensel (universal), kurum (organization) or dunya (one world, see world); omit to search every scope",
+          ),
+        world: z.string().optional().describe("only facts of this world id; usually with scope dunya"),
+        limit: z.number().int().min(1).max(50).optional().describe("most results to return; default 10"),
         archive: z
           .boolean()
           .optional()
@@ -399,17 +401,21 @@ export function createTugraMcp(secenek: TugraMcpSecenek = {}): McpServer {
     "event_report",
     {
       description:
-        "Append a telemetry line to akis/YYYY-MM-DD.jsonl. No network.",
+        "Report what an agent is doing, as one line appended to today's file akis/YYYY-MM-DD.jsonl, so the operator can follow agents' work and see where one is blocked. Call it when a job starts, when it finishes or fails, and when it is waiting on something; it is not for facts (use fact_propose). Append-only: nothing earlier is changed. Writes locally, no network. The agent needs authorization to report; without it nothing is written and the answer says ok false with the reason and a request id. A successful answer gives the file path and the line number written.",
       inputSchema: z.object({
-        agent: z.string().min(1),
-        job: z.string().min(1),
-        action: z.enum(["read", "write", "search", "run", "decide", "wait"]),
+        agent: z.string().min(1).describe("id of the agent reporting; authorization is checked for it"),
+        job: z.string().min(1).describe("short name of the job, the same across its started / running / done lines"),
+        action: z.enum(["read", "write", "search", "run", "decide", "wait"]).describe("kind of work this line is about"),
         status: z.enum(["started", "running", "done", "error"]),
-        world: z.string().optional(),
-        touched: z.array(z.string()).optional(),
-        confidence: z.number().min(0).max(1).optional(),
-        note: z.string().max(200).optional(),
-        blocked: z.string().nullable().optional(),
+        world: z.string().optional().describe("world id the job belongs to, if any"),
+        touched: z.array(z.string()).optional().describe("paths or fact uids the job read or changed"),
+        confidence: z.number().min(0).max(1).optional().describe("the agent's own confidence in the result, 0 to 1"),
+        note: z.string().max(200).optional().describe("one short human-readable line"),
+        blocked: z
+          .string()
+          .nullable()
+          .optional()
+          .describe("what the job is waiting on; null when it is no longer blocked"),
       }),
     },
     async (args) => tugraArac("event_report", args, secenek),
