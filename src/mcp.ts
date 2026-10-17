@@ -401,12 +401,12 @@ export function createTugraMcp(secenek: TugraMcpSecenek = {}): McpServer {
     "event_report",
     {
       description:
-        "Report what an agent is doing, as one line appended to today's file akis/YYYY-MM-DD.jsonl, so the operator can follow agents' work and see where one is blocked. Call it when a job starts, when it finishes or fails, and when it is waiting on something; it is not for facts (use fact_propose). Append-only: nothing earlier is changed. Writes locally, no network. The agent needs authorization to report; without it nothing is written and the answer says ok false with the reason and a request id. A successful answer gives the file path and the line number written.",
+        "Report what an agent is doing, as one line appended to today's file akis/YYYY-MM-DD.jsonl, so the operator can follow agents' work and see where one is blocked. Call it when a job starts, when it finishes or fails, and when it is waiting on something; it is not for facts (use fact_propose). Append-only: nothing earlier is changed. Writes locally, no network. The agent needs authorization to report; without it the report is not written, an authorization request line is written to the same file in its place, and the answer says ok false with the reason and that request's id. A successful answer gives the file path and the line number written.",
       inputSchema: z.object({
         agent: z.string().min(1).describe("id of the agent reporting; authorization is checked for it"),
         job: z.string().min(1).describe("short name of the job, the same across its started / running / done lines"),
         action: z.enum(["read", "write", "search", "run", "decide", "wait"]).describe("kind of work this line is about"),
-        status: z.enum(["started", "running", "done", "error"]),
+        status: z.enum(["started", "running", "done", "error"]).describe("where the job stands at this line"),
         world: z.string().optional().describe("world id the job belongs to, if any"),
         touched: z.array(z.string()).optional().describe("paths or fact uids the job read or changed"),
         confidence: z.number().min(0).max(1).optional().describe("the agent's own confidence in the result, 0 to 1"),
